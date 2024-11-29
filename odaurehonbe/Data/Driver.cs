@@ -2,13 +2,14 @@
 
 namespace odaurehonbe.Data
 {
-    public class Customer : Account
+    public class Driver : Account
     {
-        public int CustomerID { get; set; }
+       
+        public int DriverID { get; set; }
         public string Name { get; set; }
         public string Gender { get; set; }
         public string PhoneNumber { get; set; }
         public string Email { get; set; }
-        public string Address { get; set; }
+        public string LicenseNumber { get; set; }
     }
 }

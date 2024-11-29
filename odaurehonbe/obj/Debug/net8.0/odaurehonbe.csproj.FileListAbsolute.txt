@@ -108,3 +108,12 @@ E:\.net\odaurehonbe\odaurehonbe\obj\Debug\net8.0\refint\odaurehonbe.dll
 E:\.net\odaurehonbe\odaurehonbe\obj\Debug\net8.0\odaurehonbe.pdb
 E:\.net\odaurehonbe\odaurehonbe\obj\Debug\net8.0\odaurehonbe.genruntimeconfig.cache
 E:\.net\odaurehonbe\odaurehonbe\obj\Debug\net8.0\ref\odaurehonbe.dll
+E:\.net\odaurehonbe\odaurehonbe\obj\Debug\net8.0\odaurehonbe.sourcelink.json
+E:\.net\odaurehonbe\odaurehonbe\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+E:\.net\odaurehonbe\odaurehonbe\bin\Debug\net8.0\Microsoft.IdentityModel.Abstractions.dll
+E:\.net\odaurehonbe\odaurehonbe\bin\Debug\net8.0\Microsoft.IdentityModel.JsonWebTokens.dll
+E:\.net\odaurehonbe\odaurehonbe\bin\Debug\net8.0\Microsoft.IdentityModel.Logging.dll
+E:\.net\odaurehonbe\odaurehonbe\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.dll
+E:\.net\odaurehonbe\odaurehonbe\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+E:\.net\odaurehonbe\odaurehonbe\bin\Debug\net8.0\Microsoft.IdentityModel.Tokens.dll
+E:\.net\odaurehonbe\odaurehonbe\bin\Debug\net8.0\System.IdentityModel.Tokens.Jwt.dll

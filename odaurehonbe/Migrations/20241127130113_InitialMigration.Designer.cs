@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using odaurehonbe.Data;
@@ -11,9 +12,11 @@ using odaurehonbe.Data;
 namespace odaurehonbe.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241127130113_InitialMigration")]
+    partial class InitialMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -264,9 +267,8 @@ namespace odaurehonbe.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("Gender")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<char?>("Gender")
+                        .HasColumnType("character(1)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -290,9 +292,8 @@ namespace odaurehonbe.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("Gender")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<char?>("Gender")
+                        .HasColumnType("character(1)");
 
                     b.Property<string>("LicenseNumber")
                         .IsRequired()
@@ -328,9 +329,8 @@ namespace odaurehonbe.Migrations
                 {
                     b.HasBaseType("odaurehonbe.Data.Account");
 
-                    b.Property<string>("Gender")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<char?>("Gender")
+                        .HasColumnType("character(1)");
 
                     b.Property<DateTime>("HireDate")
                         .HasColumnType("timestamp with time zone");
