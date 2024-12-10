@@ -72,7 +72,6 @@ namespace odaurehonbe.Data
         public DbSet<Account> Accounts { get; set; }
         public DbSet<Bus> Buses { get; set; }
         public DbSet<BusRoute> BusRoutes { get; set; }
-        public DbSet<BusStop> BusStops { get; set; }
         public DbSet<Driver> Drivers { get; set; }
         public DbSet<Ticket> Tickets { get; set; }
         public DbSet<TicketClerk> TicketClerks { get; set; }

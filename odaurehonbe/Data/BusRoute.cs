@@ -6,9 +6,15 @@ namespace odaurehonbe.Data
     {
         [Key]
         public int BusRouteID { get; set; }
+
+        public string DepartPlace { get; set; }
+         public string ArrivalPlace { get; set; }
+
+
+        public DateTime DepartureTime { get; set; }
+
         public int Duration { get; set; }
-        public int DepartPlace { get; set; }
-        public int ArrivalPlace { get; set; }
-        public string Type { get; set; }
     }
+
 }
+
