@@ -15,50 +15,70 @@ namespace odaurehonbe.Controllers
         {
             _dbContext = dbContext;
         }
-
-        [HttpGet]
-        public async Task<IActionResult> GetBusRoutes([FromQuery] string? searchQuery, [FromQuery] List<string>? timeFrames)
+        private TimeSpan GetStartTime(string timeFrame)
         {
-            // Log timeFrames nhận từ frontend
-            Console.WriteLine($"Received timeFrames: {string.Join(", ", timeFrames)}");
+            switch (timeFrame)
+            {
+                case "0:00 - 6:00": return new TimeSpan(0, 0, 0);
+                case "6:00 - 12:00": return new TimeSpan(6, 0, 0);
+                case "12:00 - 18:00": return new TimeSpan(12, 0, 0);
+                case "18:00 - 0:00": return new TimeSpan(18, 0, 0);
+                default: return TimeSpan.Zero;
+            }
+        }
 
-            var busRoutes = await _dbContext.BusRoutes.ToListAsync();
+        private TimeSpan GetEndTime(string timeFrame)
+        {
+            switch (timeFrame)
+            {
+                case "0:00 - 6:00": return new TimeSpan(6, 0, 0);
+                case "6:00 - 12:00": return new TimeSpan(12, 0, 0);
+                case "12:00 - 18:00": return new TimeSpan(18, 0, 0);
+                case "18:00 - 0:00": return new TimeSpan(24, 0, 0);
+                default: return TimeSpan.Zero;
+            }
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetBusRoutes([FromQuery] string? searchQuery, [FromQuery] string[]? timeFrames)
+        {
+            // Log ra timeFrames để kiểm tra xem có dữ liệu nhận được không
+            if (timeFrames != null && timeFrames.Length > 0)
+            {
+                Console.WriteLine("Received timeFrames: " + string.Join(", ", timeFrames)); // Log giá trị của timeFrames
+            }
+            else
+            {
+                Console.WriteLine("No timeFrames received."); // Log khi không có timeFrames
+            }
+
+            var query = _dbContext.BusRoutes.AsQueryable();
 
             if (!string.IsNullOrEmpty(searchQuery))
             {
-                busRoutes = busRoutes.Where(br => br.BusRouteID.ToString().Contains(searchQuery)).ToList();
+                query = query.Where(b => b.DepartPlace.Contains(searchQuery) || b.BusRouteID.Equals(searchQuery));
             }
 
-            if (timeFrames != null && timeFrames.Any())
+            // Kiểm tra và xử lý timeFrames
+            if (timeFrames != null && timeFrames.Length > 0)
             {
-                busRoutes = busRoutes.Where(br =>
-                {
-                    var hour = br.DepartureTime.Hour;
-
-                    // Log giờ trong DepartureTime
-                    Console.WriteLine($"BusRoute ID: {br.BusRouteID}, DepartureTime: {br.DepartureTime}, Hour: {hour}");
-
-                    return timeFrames.Any(tf =>
-                    {
-                        var parts = tf.Split(" - ");
-                        int start = int.Parse(parts[0].Split(':')[0]);
-                        int end = parts[1] == "0:00" ? 24 : int.Parse(parts[1].Split(':')[0]);
-
-                        // Log thời gian start và end
-                        Console.WriteLine($"Checking time frame: {start} - {end} for hour {hour}");
-
-                        if (end == 24)
-                        {
-                            return hour >= start || hour < end;
-                        }
-                        return hour >= start && hour < end;
-                    });
-                }).ToList();
+                query = query.Where(b =>
+                    timeFrames.Any(t =>
+                        b.DepartureTime.TimeOfDay >= GetStartTime(t) &&
+                        b.DepartureTime.TimeOfDay < GetEndTime(t)
+                    )
+                );
             }
 
-            return Ok(busRoutes);
-        }
+            var results = await query.ToListAsync();
 
+            // Nếu không có kết quả, trả về thông báo không tìm thấy
+            if (results.Count == 0)
+            {
+                return NotFound("No bus routes found matching the criteria.");
+            }
+
+            return Ok(results);
+        }
 
 
         [HttpPost]
@@ -107,5 +127,7 @@ namespace odaurehonbe.Controllers
 
             return NoContent();
         }
+
     }
+
 }

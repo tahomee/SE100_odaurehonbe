@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using odaurehonbe.Data;
@@ -11,9 +12,11 @@ using odaurehonbe.Data;
 namespace odaurehonbe.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241213040149_UpdateBusRelationships")]
+    partial class UpdateBusRelationships
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,52 +24,6 @@ namespace odaurehonbe.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("BusBusRoute", b =>
-                {
-                    b.Property<int>("BusBusRouteID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("BusBusRouteID"));
-
-                    b.Property<int>("BusID")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("BusRouteID")
-                        .HasColumnType("integer");
-
-                    b.HasKey("BusBusRouteID");
-
-                    b.HasIndex("BusID");
-
-                    b.HasIndex("BusRouteID");
-
-                    b.ToTable("BusBusRoutes");
-                });
-
-            modelBuilder.Entity("BusDriver", b =>
-                {
-                    b.Property<int>("BusDriverID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("BusDriverID"));
-
-                    b.Property<int>("BusID")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("DriverID")
-                        .HasColumnType("integer");
-
-                    b.HasKey("BusDriverID");
-
-                    b.HasIndex("BusID");
-
-                    b.HasIndex("DriverID");
-
-                    b.ToTable("BusDrivers");
-                });
 
             modelBuilder.Entity("Customer", b =>
                 {
@@ -99,6 +56,9 @@ namespace odaurehonbe.Migrations
                     b.Property<int>("AccountID")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("BusID")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Gender")
                         .IsRequired()
                         .HasColumnType("text");
@@ -116,6 +76,8 @@ namespace odaurehonbe.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("AccountID");
+
+                    b.HasIndex("BusID");
 
                     b.ToTable("Drivers");
                 });
@@ -189,12 +151,6 @@ namespace odaurehonbe.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<decimal>("PricePerSeat")
-                        .HasColumnType("numeric");
-
-                    b.Property<int>("SeatsAvailable")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasColumnType("text");
@@ -216,6 +172,9 @@ namespace odaurehonbe.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int?>("BusID")
+                        .HasColumnType("integer");
+
                     b.Property<string>("DepartPlace")
                         .IsRequired()
                         .HasColumnType("text");
@@ -223,11 +182,12 @@ namespace odaurehonbe.Migrations
                     b.Property<DateTime>("DepartureTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Duration")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("Duration")
+                        .HasColumnType("integer");
 
                     b.HasKey("BusRouteID");
+
+                    b.HasIndex("BusID");
 
                     b.ToTable("BusRoutes");
                 });
@@ -313,31 +273,6 @@ namespace odaurehonbe.Migrations
                     b.ToTable("Promotions");
                 });
 
-            modelBuilder.Entity("odaurehonbe.Data.Seat", b =>
-                {
-                    b.Property<int>("SeatID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("SeatID"));
-
-                    b.Property<int>("BusID")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("IsBooked")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("SeatNumber")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("SeatID");
-
-                    b.HasIndex("BusID");
-
-                    b.ToTable("Seat");
-                });
-
             modelBuilder.Entity("odaurehonbe.Data.Ticket", b =>
                 {
                     b.Property<int>("TicketID")
@@ -374,44 +309,6 @@ namespace odaurehonbe.Migrations
                     b.ToTable("Tickets");
                 });
 
-            modelBuilder.Entity("BusBusRoute", b =>
-                {
-                    b.HasOne("odaurehonbe.Data.Bus", "Bus")
-                        .WithMany("BusBusRoutes")
-                        .HasForeignKey("BusID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("odaurehonbe.Data.BusRoute", "BusRoute")
-                        .WithMany("BusBusRoutes")
-                        .HasForeignKey("BusRouteID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Bus");
-
-                    b.Navigation("BusRoute");
-                });
-
-            modelBuilder.Entity("BusDriver", b =>
-                {
-                    b.HasOne("odaurehonbe.Data.Bus", "Bus")
-                        .WithMany("BusDrivers")
-                        .HasForeignKey("BusID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Driver", "Driver")
-                        .WithMany("BusDrivers")
-                        .HasForeignKey("DriverID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Bus");
-
-                    b.Navigation("Driver");
-                });
-
             modelBuilder.Entity("Customer", b =>
                 {
                     b.HasOne("odaurehonbe.Data.Account", "Account")
@@ -431,6 +328,10 @@ namespace odaurehonbe.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("odaurehonbe.Data.Bus", null)
+                        .WithMany("Drivers")
+                        .HasForeignKey("BusID");
+
                     b.Navigation("Account");
                 });
 
@@ -445,20 +346,11 @@ namespace odaurehonbe.Migrations
                     b.Navigation("Account");
                 });
 
-            modelBuilder.Entity("odaurehonbe.Data.Seat", b =>
+            modelBuilder.Entity("odaurehonbe.Data.BusRoute", b =>
                 {
-                    b.HasOne("odaurehonbe.Data.Bus", "Bus")
-                        .WithMany("Seats")
-                        .HasForeignKey("BusID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Bus");
-                });
-
-            modelBuilder.Entity("Driver", b =>
-                {
-                    b.Navigation("BusDrivers");
+                    b.HasOne("odaurehonbe.Data.Bus", null)
+                        .WithMany("BusRoutes")
+                        .HasForeignKey("BusID");
                 });
 
             modelBuilder.Entity("odaurehonbe.Data.Account", b =>
@@ -475,16 +367,9 @@ namespace odaurehonbe.Migrations
 
             modelBuilder.Entity("odaurehonbe.Data.Bus", b =>
                 {
-                    b.Navigation("BusBusRoutes");
+                    b.Navigation("BusRoutes");
 
-                    b.Navigation("BusDrivers");
-
-                    b.Navigation("Seats");
-                });
-
-            modelBuilder.Entity("odaurehonbe.Data.BusRoute", b =>
-                {
-                    b.Navigation("BusBusRoutes");
+                    b.Navigation("Drivers");
                 });
 #pragma warning restore 612, 618
         }

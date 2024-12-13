@@ -1,15 +1,18 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using odaurehonbe.Data;
+using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
-namespace odaurehonbe.Data
+public class Driver
 {
-    public class Driver : Account
-    {
-       
-        public int DriverID { get; set; }
-        public string Name { get; set; }
-        public string Gender { get; set; }
-        public string PhoneNumber { get; set; }
-        public string Email { get; set; }
-        public string LicenseNumber { get; set; }
-    }
+    [Key]
+    public int AccountID { get; set; }
+    public string Name { get; set; }
+    public string Gender { get; set; }
+    public string PhoneNumber { get; set; }
+    public string LicenseNumber { get; set; }
+    [JsonIgnore]  
+
+    public Account Account { get; set; }
+    [JsonIgnore]
+    public ICollection<BusDriver> BusDrivers { get; set; }
 }

@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace odaurehonbe.Data
 {
@@ -6,10 +8,17 @@ namespace odaurehonbe.Data
     {
         [Key]
         public int BusID { get; set; }
+
         public int NumSeat { get; set; }
-        public DateTime DepartTime { get; set; }
-        public DateTime ArrivalTime { get; set; }
-        public int DriverID { get; set; }
+
         public string PlateNum { get; set; }
+
+        public string Type { get; set; }
+        public int SeatsAvailable { get; set; }
+        public decimal PricePerSeat { get; set; } 
+        public ICollection<BusDriver> BusDrivers { get; set; }
+
+        public ICollection<BusBusRoute> BusBusRoutes { get; set; }
+        public ICollection<Seat> Seats { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace odaurehonbe.Data
 {
@@ -13,7 +14,9 @@ namespace odaurehonbe.Data
 
         public DateTime DepartureTime { get; set; }
 
-        public int Duration { get; set; }
+        public string Duration { get; set; }
+        [JsonIgnore]
+        public ICollection<BusBusRoute> BusBusRoutes { get; set; }
     }
 
 }
