@@ -186,12 +186,85 @@ namespace odaurehonbe.Controllers
             {
                 return StatusCode(500, new { error = "An error occurred while creating tickets.", details = ex.Message });
             }
+
+        }
+        [HttpPost("create-multiple-tickets")]
+        public IActionResult CreateMultipleTickets([FromBody] List<TicketRequestModel> requests)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var createdTickets = new List<Ticket>();
+            var errors = new List<string>();
+
+            try
+            {
+                foreach (var request in requests)
+                {
+                    var seatNumbers = request.SeatNum
+                        .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(int.Parse)
+                        .ToList();
+
+                    foreach (var seatNumber in seatNumbers)
+                    {
+                        var seat = _context.Seats
+                            .Include(s => s.BusBusRoute)
+                            .FirstOrDefault(s => s.BusBusRoute.BusBusRouteID == request.BusBusRouteID && s.SeatID == seatNumber);
+
+                        if (seat == null || seat.IsBooked)
+                        {
+                            errors.Add($"Seat {seatNumber} for BusBusRouteID {request.BusBusRouteID} is not available.");
+                            continue;
+                        }
+
+                        var ticket = new Ticket
+                        {
+                            BusBusRouteID = request.BusBusRouteID,
+                            CustomerID = request.CustomerID,
+                            SeatNum = seatNumber,
+                            Type = request.Type,
+                            Price = request.Price,
+                            BookingDate = DateTime.UtcNow,
+                            Status = "Chờ thanh toán"
+                        };
+
+                        createdTickets.Add(ticket);
+
+                        seat.IsBooked = true; 
+                    }
+                }
+
+                if (createdTickets.Any())
+                {
+                    _context.Tickets.AddRange(createdTickets);
+                    _context.SaveChanges();
+                }
+
+                return Ok(new
+                {
+                    message = "Multiple tickets created successfully.",
+                    tickets = createdTickets,
+                    errors = errors.Any() ? errors : null
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    error = "An error occurred while creating multiple tickets.",
+                    details = ex.Message
+                });
+            }
         }
 
-    
 
 
-}
+
+
+    }
 
 
 }
