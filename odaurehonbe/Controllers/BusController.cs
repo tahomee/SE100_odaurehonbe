@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using odaurehonbe.Data;
 using odaurehonbe.Models;
@@ -16,16 +17,29 @@ namespace odaurehonbe.Controllers
             _context = context;
         }
 
-        // GET: api/buses
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Bus>>> GetBuses()
+        public IActionResult GetBuses([FromQuery] string? filterType, [FromQuery] string? searchQuery)
         {
-            return await _context.Buses.Include(b => b.BusDrivers)
-                                        .Include(b => b.BusBusRoutes)
-                                        .ToListAsync();
+            var query = _context.Buses.AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchQuery))
+            {
+                if (int.TryParse(searchQuery, out int busID))
+                {
+                    query = query.Where(bus => bus.BusID == busID);
+                }
+
+            }
+
+
+            var result = query.Include(bus => bus.BusBusRoutes)
+                              .Include(bus => bus.BusDrivers)
+                              .ToList();
+
+            return Ok(result);
         }
 
-        // GET: api/buses/5
+
         [HttpGet("{id}")]
         public async Task<ActionResult<Bus>> GetBus(int id)
         {
@@ -40,6 +54,7 @@ namespace odaurehonbe.Controllers
 
             return bus;
         }
+
         [HttpPost]
         public async Task<IActionResult> AddBus([FromBody] BusRequestModel busRequest)
         {
@@ -48,7 +63,6 @@ namespace odaurehonbe.Controllers
                 return BadRequest("Dữ liệu không hợp lệ.");
             }
 
-            // Chuyển các chuỗi busRouteIds và driverIds thành mảng số
             var busRouteIds = busRequest.BusRouteIds
                 .Split(',')
                 .Select(id => int.Parse(id.Trim()))
@@ -59,14 +73,12 @@ namespace odaurehonbe.Controllers
                 .Select(id => int.Parse(id.Trim()))
                 .ToList();
 
-            // Kiểm tra xem BusID đã tồn tại chưa
             var existingBus = await _context.Buses.FindAsync(busRequest.BusID);
             if (existingBus != null)
             {
                 return BadRequest("BusID đã tồn tại.");
             }
 
-            // Tạo và lưu trữ đối tượng Bus mới
             var newBus = new Bus
             {
                 BusID = busRequest.BusID,
@@ -75,25 +87,40 @@ namespace odaurehonbe.Controllers
                 Type = busRequest.Type,
             };
 
-            // Thêm Bus vào cơ sở dữ liệu
             _context.Buses.Add(newBus);
 
-            // Lưu trữ BusBusRoutes và BusDrivers
+            await _context.SaveChangesAsync();
+
             foreach (var routeId in busRouteIds)
             {
-                // Kiểm tra xem BusRoute có tồn tại trong cơ sở dữ liệu không
                 var busRoute = await _context.BusRoutes.FindAsync(routeId);
                 if (busRoute == null)
                 {
                     return BadRequest($"BusRoute với ID {routeId} không tồn tại.");
                 }
 
-                _context.BusBusRoutes.Add(new BusBusRoute { BusID = busRequest.BusID, BusRouteID = routeId });
+                var busBusRoute = new BusBusRoute
+                {
+                    BusID = busRequest.BusID,
+                    BusRouteID = routeId
+                };
+                _context.BusBusRoutes.Add(busBusRoute);
+                await _context.SaveChangesAsync(); 
+
+                for (int i = 1; i <= busRequest.NumSeat; i++)
+                {
+                    var seat = new Seat
+                    {
+                        SeatNumber = $"S{i}",
+                        IsBooked = false,
+                        BusBusRouteID = busBusRoute.BusBusRouteID 
+                    };
+                    _context.Seats.Add(seat);
+                }
             }
 
             foreach (var driverId in driverIds)
             {
-                // Kiểm tra xem Driver có tồn tại trong cơ sở dữ liệu không
                 var driver = await _context.Drivers.FindAsync(driverId);
                 if (driver == null)
                 {
@@ -103,17 +130,12 @@ namespace odaurehonbe.Controllers
                 _context.BusDrivers.Add(new BusDriver { BusID = busRequest.BusID, DriverID = driverId });
             }
 
-            // Lưu các thay đổi
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetBus), new { id = busRequest.BusID }, busRequest);
         }
 
-
-
-
         [HttpPut("{id}")]
-
         public async Task<IActionResult> PutBus(int id, BusRequestModel busRequest)
         {
             if (id != busRequest.BusID)
@@ -121,10 +143,10 @@ namespace odaurehonbe.Controllers
                 return BadRequest("Bus ID mismatch.");
             }
 
-            // Tìm chiếc xe trong cơ sở dữ liệu
             var existingBus = await _context.Buses
                                              .Include(b => b.BusDrivers)
-                                             .Include(b => b.BusBusRoutes)  // Bao gồm các tuyến đường liên quan
+                                             .Include(b => b.BusBusRoutes)
+                                             .ThenInclude(bbr => bbr.Seats) 
                                              .FirstOrDefaultAsync(b => b.BusID == id);
 
             if (existingBus == null)
@@ -132,72 +154,81 @@ namespace odaurehonbe.Controllers
                 return NotFound("Bus not found.");
             }
 
-            // Cập nhật thông tin xe
             existingBus.NumSeat = busRequest.NumSeat;
             existingBus.PlateNum = busRequest.PlateNum;
             existingBus.Type = busRequest.Type;
 
-            // Cập nhật tuyến đường (bus route) nếu có
             var existingBusRouteIds = existingBus.BusBusRoutes.Select(br => br.BusRouteID).ToList();
             var busRouteIds = busRequest.BusRouteIds.Split(',').Select(int.Parse).ToList();
 
-            // Xóa các tuyến đường không còn liên quan đến chiếc xe hiện tại
-            foreach (var existingRouteId in existingBusRouteIds)
+            foreach (var busBusRoute in existingBus.BusBusRoutes)
             {
-                if (!busRouteIds.Contains(existingRouteId))
+                if (!busRouteIds.Contains(busBusRoute.BusRouteID))
                 {
-                    var busRoute = existingBus.BusBusRoutes.FirstOrDefault(br => br.BusRouteID == existingRouteId);
-                    if (busRoute != null)
-                    {
-                        existingBus.BusBusRoutes.Remove(busRoute); // Xóa tuyến đường không còn liên quan
-                    }
+                    _context.Seats.RemoveRange(busBusRoute.Seats);
+
+                    _context.BusBusRoutes.Remove(busBusRoute);
                 }
             }
 
-            // Thêm các tuyến đường mới (nếu có)
             foreach (var routeId in busRouteIds)
             {
-                if (!existingBusRouteIds.Contains(routeId)) // Nếu tuyến đường chưa có
+                if (!existingBusRouteIds.Contains(routeId))
                 {
-                    var busRoute = await _context.BusBusRoutes.FindAsync(routeId);
+                    var busRoute = await _context.BusRoutes.FindAsync(routeId);
                     if (busRoute != null)
                     {
-                        existingBus.BusBusRoutes.Add(busRoute); // Thêm tuyến đường mới
+                        var newBusBusRoute = new BusBusRoute
+                        {
+                            BusID = existingBus.BusID,
+                            BusRouteID = routeId
+                        };
+
+                        _context.BusBusRoutes.Add(newBusBusRoute);
+                        await _context.SaveChangesAsync(); 
+
+                        for (int i = 1; i <= busRequest.NumSeat; i++)
+                        {
+                            var seat = new Seat
+                            {
+                                SeatNumber = $"S{i}",
+                                IsBooked = false,
+                                BusBusRouteID = newBusBusRoute.BusBusRouteID
+                            };
+                            _context.Seats.Add(seat);
+                        }
                     }
                 }
             }
 
-            // Cập nhật các lái xe (drivers)
             var existingDriverIds = existingBus.BusDrivers.Select(bd => bd.DriverID).ToList();
             var driverIds = busRequest.DriverIds.Split(',').Select(int.Parse).ToList();
 
-            // Xóa các lái xe không còn liên quan đến chiếc xe hiện tại
-            foreach (var existingDriverId in existingDriverIds)
+            foreach (var busDriver in existingBus.BusDrivers)
             {
-                if (!driverIds.Contains(existingDriverId))
+                if (!driverIds.Contains(busDriver.DriverID))
                 {
-                    var busDriver = existingBus.BusDrivers.FirstOrDefault(bd => bd.DriverID == existingDriverId);
-                    if (busDriver != null)
+                    _context.BusDrivers.Remove(busDriver);
+                }
+            }
+
+            foreach (var driverId in driverIds)
+            {
+                if (!existingDriverIds.Contains(driverId))
+                {
+                    var driver = await _context.Drivers.FindAsync(driverId);
+                    if (driver != null)
                     {
-                        existingBus.BusDrivers.Remove(busDriver); // Xóa lái xe không còn liên quan
+                        existingBus.BusDrivers.Add(new BusDriver { BusID = existingBus.BusID, DriverID = driverId });
                     }
                 }
             }
 
-            // Thêm các lái xe mới (nếu có)
-            foreach (var driverId in driverIds)
-            {
-                if (!existingDriverIds.Contains(driverId)) // Nếu lái xe chưa có
-                {
-                    existingBus.BusDrivers.Add(new BusDriver { BusID = existingBus.BusID, DriverID = driverId }); // Thêm lái xe mới
-                }
-            }
-
-            // Lưu thay đổi vào cơ sở dữ liệu
             await _context.SaveChangesAsync();
 
-            return NoContent(); // Trả về mã trạng thái NoContent (204) khi cập nhật thành công
+            return NoContent();
         }
+
 
 
         [HttpDelete("{id}")]
@@ -205,7 +236,8 @@ namespace odaurehonbe.Controllers
         {
             var bus = await _context.Buses
                                     .Include(b => b.BusDrivers)
-                                    .Include(b => b.BusBusRoutes)  // Bao gồm các tuyến đường liên quan
+                                    .Include(b => b.BusBusRoutes)
+                                    .Include(b => b.Seats)
                                     .FirstOrDefaultAsync(b => b.BusID == id);
 
             if (bus == null)
@@ -213,20 +245,14 @@ namespace odaurehonbe.Controllers
                 return NotFound("Bus not found.");
             }
 
-            // Xóa các liên kết trong BusBusRoutes (tuyến đường liên quan)
+            _context.Seats.RemoveRange(bus.Seats);
             _context.BusBusRoutes.RemoveRange(bus.BusBusRoutes);
-
-            // Xóa các liên kết trong BusDrivers (lái xe liên quan)
             _context.BusDrivers.RemoveRange(bus.BusDrivers);
-
-            // Xóa chiếc xe
             _context.Buses.Remove(bus);
 
-            // Lưu thay đổi vào cơ sở dữ liệu
             await _context.SaveChangesAsync();
 
-            return NoContent(); // Trả về mã trạng thái NoContent (204) khi xóa thành công
+            return NoContent();
         }
-
     }
 }

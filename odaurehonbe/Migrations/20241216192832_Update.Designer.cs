@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using odaurehonbe.Data;
@@ -11,9 +12,11 @@ using odaurehonbe.Data;
 namespace odaurehonbe.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241216192832_Update")]
+    partial class Update
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -227,9 +230,6 @@ namespace odaurehonbe.Migrations
                     b.Property<decimal>("PricePerSeat")
                         .HasColumnType("numeric");
 
-                    b.Property<decimal>("PricePerSeatVip")
-                        .HasColumnType("numeric");
-
                     b.HasKey("BusRouteID");
 
                     b.ToTable("BusRoutes");
@@ -324,10 +324,7 @@ namespace odaurehonbe.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("SeatID"));
 
-                    b.Property<int>("BusBusRouteID")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("BusID")
+                    b.Property<int>("BusID")
                         .HasColumnType("integer");
 
                     b.Property<bool>("IsBooked")
@@ -339,11 +336,9 @@ namespace odaurehonbe.Migrations
 
                     b.HasKey("SeatID");
 
-                    b.HasIndex("BusBusRouteID");
-
                     b.HasIndex("BusID");
 
-                    b.ToTable("Seats");
+                    b.ToTable("Seat");
                 });
 
             modelBuilder.Entity("odaurehonbe.Data.Ticket", b =>
@@ -455,22 +450,13 @@ namespace odaurehonbe.Migrations
 
             modelBuilder.Entity("odaurehonbe.Data.Seat", b =>
                 {
-                    b.HasOne("BusBusRoute", "BusBusRoute")
+                    b.HasOne("odaurehonbe.Data.Bus", "Bus")
                         .WithMany("Seats")
-                        .HasForeignKey("BusBusRouteID")
+                        .HasForeignKey("BusID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("odaurehonbe.Data.Bus", null)
-                        .WithMany("Seats")
-                        .HasForeignKey("BusID");
-
-                    b.Navigation("BusBusRoute");
-                });
-
-            modelBuilder.Entity("BusBusRoute", b =>
-                {
-                    b.Navigation("Seats");
+                    b.Navigation("Bus");
                 });
 
             modelBuilder.Entity("Driver", b =>

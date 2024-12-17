@@ -5,13 +5,14 @@ using System.Text.Json.Serialization;
 public class BusBusRoute
 {
     [Key]
-    public int BusBusRouteID { get; set; }  // ID duy nhất cho mối quan hệ
+    public int BusBusRouteID { get; set; } 
 
-    public int BusID { get; set; }  // Khóa ngoại đến Bus
+    public int BusID { get; set; }  
 
-    public int BusRouteID { get; set; }  // Khóa ngoại đến BusRoute
-      [JsonIgnore]
-    public Bus Bus { get; set; }  // Mối quan hệ với Bus
+    public int BusRouteID { get; set; } 
     [JsonIgnore]
-    public BusRoute BusRoute { get; set; }  // Mối quan hệ với BusRoute
+    public Bus Bus { get; set; } 
+    [JsonIgnore]
+    public BusRoute BusRoute { get; set; }
+    public ICollection<Seat> Seats { get; set; }
 }

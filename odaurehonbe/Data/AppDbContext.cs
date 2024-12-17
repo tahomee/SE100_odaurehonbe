@@ -12,7 +12,6 @@ namespace odaurehonbe.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Param>().HasNoKey();
-            // Cấu hình mối quan hệ nhiều-nhiều giữa Bus và Driver
             modelBuilder.Entity<BusDriver>()
                 .HasOne(bd => bd.Bus)
                 .WithMany(b => b.BusDrivers)
@@ -23,7 +22,6 @@ namespace odaurehonbe.Data
                 .WithMany(d => d.BusDrivers)
                 .HasForeignKey(bd => bd.DriverID);
 
-            // Cấu hình mối quan hệ nhiều-nhiều giữa Bus và BusRoute
             modelBuilder.Entity<BusBusRoute>()
                 .HasOne(br => br.Bus)
                 .WithMany(b => b.BusBusRoutes)
@@ -47,6 +45,12 @@ namespace odaurehonbe.Data
                 .HasOne(a => a.TicketClerk)
                 .WithOne(tc => tc.Account)
                 .HasForeignKey<TicketClerk>(tc => tc.AccountID);
+            modelBuilder.Entity<Seat>()
+                .HasOne(s => s.BusBusRoute)
+                .WithMany(b => b.Seats)
+                .HasForeignKey(s => s.BusBusRouteID);
+
+
 
             base.OnModelCreating(modelBuilder);
         }
@@ -54,6 +58,7 @@ namespace odaurehonbe.Data
         public DbSet<BusBusRoute> BusBusRoutes { get; set; }
 
         public DbSet<Customer> Customers { get; set; }
+        public DbSet<Seat> Seats { get; set; }
         public DbSet<Account> Accounts { get; set; }
         public DbSet<Bus> Buses { get; set; }
         public DbSet<BusRoute> BusRoutes { get; set; }

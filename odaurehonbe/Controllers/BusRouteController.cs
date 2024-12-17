@@ -41,14 +41,13 @@ namespace odaurehonbe.Controllers
         [HttpGet]
         public async Task<IActionResult> GetBusRoutes([FromQuery] string? searchQuery, [FromQuery] string[]? timeFrames)
         {
-            // Log ra timeFrames để kiểm tra xem có dữ liệu nhận được không
             if (timeFrames != null && timeFrames.Length > 0)
             {
                 Console.WriteLine("Received timeFrames: " + string.Join(", ", timeFrames)); // Log giá trị của timeFrames
             }
             else
             {
-                Console.WriteLine("No timeFrames received."); // Log khi không có timeFrames
+                Console.WriteLine("No timeFrames received."); 
             }
 
             var query = _dbContext.BusRoutes.AsQueryable();
@@ -58,7 +57,6 @@ namespace odaurehonbe.Controllers
                 query = query.Where(b => b.DepartPlace.Contains(searchQuery) || b.BusRouteID.Equals(searchQuery));
             }
 
-            // Kiểm tra và xử lý timeFrames
             if (timeFrames != null && timeFrames.Length > 0)
             {
                 query = query.Where(b =>
@@ -71,7 +69,6 @@ namespace odaurehonbe.Controllers
 
             var results = await query.ToListAsync();
 
-            // Nếu không có kết quả, trả về thông báo không tìm thấy
             if (results.Count == 0)
             {
                 return NotFound("No bus routes found matching the criteria.");
@@ -95,24 +92,22 @@ namespace odaurehonbe.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateBusRoute(int id, [FromBody] BusRoute updatedRoute)
         {
-            // Kiểm tra giá trị id nhận từ URL
             Console.WriteLine($"Received busRouteId: {id}");
 
-            // Kiểm tra nếu tuyến xe không tồn tại
             var existingRoute = await _dbContext.BusRoutes.FindAsync(id);
             if (existingRoute == null) return NotFound();
 
-            // Cập nhật các trường khác mà không thay đổi BusRouteID
             existingRoute.BusRouteID = updatedRoute.BusRouteID;
             existingRoute.DepartPlace = updatedRoute.DepartPlace;
             existingRoute.ArrivalPlace = updatedRoute.ArrivalPlace;
             existingRoute.DepartureTime = updatedRoute.DepartureTime;
+            existingRoute.PricePerSeat = updatedRoute.PricePerSeat;
+            existingRoute.PricePerSeatVip = updatedRoute.PricePerSeatVip;
             existingRoute.Duration = updatedRoute.Duration;
 
-            // Lưu các thay đổi
             await _dbContext.SaveChangesAsync();
 
-            return NoContent();  // Trả về 204 No Content nếu thành công
+            return NoContent(); 
         }
 
 

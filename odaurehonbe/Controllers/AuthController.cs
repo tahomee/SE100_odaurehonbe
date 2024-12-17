@@ -27,26 +27,23 @@ namespace odaurehonbe.Controllers
                 return BadRequest(new { message = "Please fill in all the required fields." });
             }
 
-            // Kiểm tra tài khoản đã tồn tại
             if (_dbContext.Accounts.Any(a => a.UserName == customer.Account.UserName))
             {
                 return BadRequest(new { message = "Username already exists." });
             }
 
-            // Tạo bản ghi Account
             var account = new Account
             {
                 UserName = customer.Account.UserName,
                 Password = customer.Account.Password,
                 UserType = customer.Account.UserType,
-                Status = "Active" // Hoặc trạng thái mặc định
+                Status = "Active" 
             };
 
             _dbContext.Accounts.Add(account);
             await _dbContext.SaveChangesAsync();
 
-            // Liên kết Customer với Account
-            customer.AccountID = account.AccountID; // Gán AccountID từ tài khoản đã tạo
+            customer.AccountID = account.AccountID; 
             _dbContext.Customers.Add(customer);
 
             await _dbContext.SaveChangesAsync();
@@ -62,7 +59,6 @@ namespace odaurehonbe.Controllers
                 return BadRequest(new { message = "Email and password are required." });
             }
 
-            // Xác thực tài khoản
             var account = await _dbContext.Accounts
                 .FirstOrDefaultAsync(a => a.UserName == request.Email && a.Password == request.Password);
 
@@ -71,14 +67,19 @@ namespace odaurehonbe.Controllers
                 return Unauthorized(new { message = "Invalid email or password." });
             }
 
-            // Trả về thông tin loại tài khoản
             return Ok(new
             {
                 message = "Login successful!",
                 accountType = account.UserType,
-                accountId = account.AccountID // Thêm thông tin AccountID nếu cần
+                accountId = account.AccountID 
             });
         }
+        [HttpPost("signout")]
+        public IActionResult SignOut()
+        {
+            return Ok(new { message = "Signout successful. Please clear local storage." });
+        }
+      
 
 
     }

@@ -7,11 +7,12 @@ namespace odaurehonbe.Data
     {
         [Key]
         public int SeatID { get; set; }
-        public string SeatNumber { get; set; } 
+        public string SeatNumber { get; set; }
         public bool IsBooked { get; set; } 
 
-        public int BusID { get; set; } 
-        [JsonIgnore] 
-        public Bus Bus { get; set; } 
+        public int BusBusRouteID { get; set; } 
+        [JsonIgnore]
+        public BusBusRoute BusBusRoute { get; set; } 
+
     }
 }

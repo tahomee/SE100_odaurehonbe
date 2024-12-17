@@ -1,13 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using odaurehonbe.Data;
-using System.Threading.Tasks;
-using System.Linq;
 using odaurehonbe.Models;
 
 namespace odaurehonbe.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/ticker")]
     [ApiController]
     public class TicketController : ControllerBase
     {
@@ -17,123 +15,47 @@ namespace odaurehonbe.Controllers
         {
             _context = context;
         }
-
-        [HttpGet("bus-routes")]
-        public async Task<IActionResult> GetBusRoutes()
+        [HttpPost]
+        public async Task<IActionResult> CreateTicket(Ticket ticket)
         {
-            var routes = await _context.BusRoutes
-                .Include(br => br.BusBusRoutes)
-                .ThenInclude(bbr => bbr.Bus)
-                .Select(br => new
-                {
-                    br.BusRouteID,
-                    br.DepartPlace,
-                    br.ArrivalPlace,
-                    br.DepartureTime,
-                    br.Duration,
-                    Buses = br.BusBusRoutes.Select(bbr => new
-                    {
-                        bbr.Bus.BusID,
-                        bbr.Bus.NumSeat,
-                        bbr.Bus.PlateNum,
-                        bbr.Bus.Type,
-                         bbr.Bus.SeatsAvailable,
-                        bbr.Bus.PricePerSeat,
-
-                    })
-                })
-                .ToListAsync();
-
-            return Ok(routes);
+            _context.Tickets.Add(ticket);
+            await _context.SaveChangesAsync();
+            return Ok(ticket);
         }
 
-
-        [HttpGet("bus-routes/{busId}")]
-        public async Task<IActionResult> GetBusRouteByBusId(int busId)
+        [HttpGet]
+        public async Task<IActionResult> GetTickets()
         {
-            var busRoute = await _context.BusBusRoutes
-                .Where(bbr => bbr.BusID == busId)
-                .Include(bbr => bbr.BusRoute)
-                .Include(bbr => bbr.Bus)
-                .ThenInclude(bus => bus.Seats)  
-                .Select(bbr => new
-                {
-                    bbr.BusRoute.BusRouteID,
-                    bbr.BusRoute.DepartPlace,
-                    bbr.BusRoute.ArrivalPlace,
-                    bbr.BusRoute.DepartureTime,
-                    bbr.BusRoute.Duration,
-                    Bus = new
-                    {
-                        bbr.Bus.BusID,
-                        bbr.Bus.NumSeat,
-                        bbr.Bus.PlateNum,
-                        bbr.Bus.Type,
-                        bbr.Bus.SeatsAvailable,
-                        bbr.Bus.PricePerSeat,
-                        Seats = bbr.Bus.Seats.Select(seat => new
-                        {
-                            seat.SeatID,
-                            seat.SeatNumber,
-                            seat.IsBooked
-                        }).ToList()  
-                    }
-                })
-                .FirstOrDefaultAsync();
-
-            if (busRoute == null)
-            {
-                return NotFound($"Bus with ID {busId} not found.");
-            }
-
-            return Ok(busRoute);
+            var tickets = await _context.Tickets.ToListAsync();
+            return Ok(tickets);
         }
-        [HttpPost("create-tickets")]
-        public IActionResult CreateTickets([FromBody] TicketRequestModel request)
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetTicket(int id)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            var ticket = await _context.Tickets.FindAsync(id);
+            if (ticket == null) return NotFound();
+            return Ok(ticket);
+        }
 
-            try
-            {
-                var seatNumbers = request.SeatNum
-                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
-                    .Select(int.Parse)  
-                    .ToList();
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateTicket(int id, Ticket ticket)
+        {
+            if (id != ticket.TicketID) return BadRequest();
+            _context.Entry(ticket).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
 
-                var tickets = new List<Ticket>();
-
-                foreach (var seatNumber in seatNumbers)
-                {
-                    var ticket = new Ticket
-                    {
-                        BusID = request.BusID,
-                        CustomerID = request.CustomerID,
-                        SeatNum = seatNumber,
-                        Type = request.Type,
-                        Price = request.Price,
-                        BookingDate = DateTime.UtcNow,
-                        Status = "Pending" 
-                    };
-
-                    tickets.Add(ticket);
-                }
-
-                _context.Tickets.AddRange(tickets);
-                _context.SaveChanges();
-
-                return Ok(new { message = "Tickets created successfully.", tickets });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { error = "An error occurred while creating tickets.", details = ex.Message });
-            }
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteTicket(int id)
+        {
+            var ticket = await _context.Tickets.FindAsync(id);
+            if (ticket == null) return NotFound();
+            _context.Tickets.Remove(ticket);
+            await _context.SaveChangesAsync();
+            return NoContent();
         }
 
     }
-
-
 }
-

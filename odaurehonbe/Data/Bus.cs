@@ -14,8 +14,8 @@ namespace odaurehonbe.Data
         public string PlateNum { get; set; }
 
         public string Type { get; set; }
-        public int SeatsAvailable { get; set; }
-        public decimal PricePerSeat { get; set; } 
+
+
         public ICollection<BusDriver> BusDrivers { get; set; }
 
         public ICollection<BusBusRoute> BusBusRoutes { get; set; }

@@ -11,12 +11,13 @@ namespace odaurehonbe.Data
         public string DepartPlace { get; set; }
          public string ArrivalPlace { get; set; }
 
-
+        public decimal PricePerSeat { get; set; }
+        public decimal PricePerSeatVip { get; set; }
         public DateTime DepartureTime { get; set; }
 
         public string Duration { get; set; }
         [JsonIgnore]
-        public ICollection<BusBusRoute> BusBusRoutes { get; set; }
+        public ICollection<BusBusRoute>? BusBusRoutes { get; set; }
     }
 
 }
