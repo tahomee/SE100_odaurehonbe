@@ -237,7 +237,7 @@ namespace odaurehonbe.Controllers
             var bus = await _context.Buses
                                     .Include(b => b.BusDrivers)
                                     .Include(b => b.BusBusRoutes)
-                                    .Include(b => b.Seats)
+                                        .ThenInclude(bbr => bbr.Seats) 
                                     .FirstOrDefaultAsync(b => b.BusID == id);
 
             if (bus == null)
@@ -245,14 +245,20 @@ namespace odaurehonbe.Controllers
                 return NotFound("Bus not found.");
             }
 
-            _context.Seats.RemoveRange(bus.Seats);
+            foreach (var busBusRoute in bus.BusBusRoutes)
+            {
+                _context.Seats.RemoveRange(busBusRoute.Seats); 
+            }
+
             _context.BusBusRoutes.RemoveRange(bus.BusBusRoutes);
             _context.BusDrivers.RemoveRange(bus.BusDrivers);
+
             _context.Buses.Remove(bus);
 
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
+
     }
 }

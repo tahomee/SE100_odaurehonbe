@@ -83,67 +83,127 @@ namespace odaurehonbe.Controllers
             return Ok(result);
         }
 
-        [HttpGet("{keyword}")]
-        public async Task<IActionResult> SearchAccounts(string? keyword)
+        //[HttpGet("{keyword}")]
+        //public async Task<IActionResult> SearchAccounts(string? keyword)
+        //{
+        //    var accounts = await _context.Accounts
+        //        .Include(a => a.Customer)
+        //        .Include(a => a.Driver)
+        //        .Include(a => a.TicketClerk)
+        //       .Where(a => string.IsNullOrEmpty(keyword) ||
+        //    a.UserName.Contains(keyword) ||
+        //    a.AccountID.ToString().Contains(keyword) ||
+        //    (a.Customer != null && a.Customer.Name.Contains(keyword)) ||
+        //    (a.Driver != null && a.Driver.Name.Contains(keyword)) ||
+        //    (a.TicketClerk != null && a.TicketClerk.Name.Contains(keyword)))
+        //        .ToListAsync();
+
+        //    var accountDtos = accounts.Select(account => account.UserType switch
+        //    {
+        //        "Driver" when account.Driver != null => new AccountDto
+        //        {
+        //            AccountID = account.AccountID,
+        //            UserName = account.UserName,
+        //            Status = account.Status,
+        //            UserType = account.UserType,
+        //            Password = account.Password,
+        //            Name = account.Driver.Name,
+        //            Gender = account.Driver.Gender,
+        //            PhoneNumber = account.Driver.PhoneNumber,
+        //            LicenseNumber = account.Driver.LicenseNumber
+        //        },
+        //        "TicketClerk" when account.TicketClerk != null => new AccountDto
+        //        {
+        //            AccountID = account.AccountID,
+        //            UserName = account.UserName,
+        //            Status = account.Status,
+        //            UserType = account.UserType,
+        //            Password = account.Password,
+        //            Name = account.TicketClerk.Name,
+        //            Gender = account.TicketClerk.Gender,
+        //            PhoneNumber = account.TicketClerk.PhoneNumber,
+        //            HireDate = account.TicketClerk.HireDate
+        //        },
+        //        "Customer" when account.Customer != null => new AccountDto
+        //        {
+        //            AccountID = account.AccountID,
+        //            UserName = account.UserName,
+        //            Status = account.Status,
+        //            Name = account.Customer.Name,
+        //            Gender = account.Customer.Gender,
+        //            UserType = account.UserType,
+        //            Password = account.Password,
+        //            PhoneNumber = account.Customer.PhoneNumber,
+        //            Address = account.Customer.Address
+        //        },
+        //        _ => null
+        //    }).Where(dto => dto != null).ToList();
+
+        //    return Ok(accountDtos);
+        //}
+ [HttpGet("{id}")]
+public async Task<IActionResult> GetAccountById(int id)
+{
+    var account = await _context.Accounts
+        .Include(a => a.Customer)
+        .Include(a => a.Driver)
+        .Include(a => a.TicketClerk)
+        .FirstOrDefaultAsync(a => a.AccountID == id);
+
+    if (account == null)
+    {
+        return NotFound("Account not found");
+    }
+
+    var result = account.UserType switch
+    {
+        "Driver" when account.Driver != null => new AccountDto
         {
-            // Lấy danh sách tài khoản dựa trên từ khóa tìm kiếm
-            var accounts = await _context.Accounts
-                .Include(a => a.Customer)
-                .Include(a => a.Driver)
-                .Include(a => a.TicketClerk)
-               .Where(a => string.IsNullOrEmpty(keyword) ||
-            a.UserName.Contains(keyword) ||
-            a.AccountID.ToString().Contains(keyword) ||
-            (a.Customer != null && a.Customer.Name.Contains(keyword)) ||
-            (a.Driver != null && a.Driver.Name.Contains(keyword)) ||
-            (a.TicketClerk != null && a.TicketClerk.Name.Contains(keyword)))
-                .ToListAsync();
+            AccountID = account.AccountID,
+            UserName = account.UserName,
+            Status = account.Status,
+            UserType = account.UserType,
+            Password = account.Password,
+            Name = account.Driver.Name,
+            Gender = account.Driver.Gender,
+            PhoneNumber = account.Driver.PhoneNumber,
+            LicenseNumber = account.Driver.LicenseNumber
+        },
+        "TicketClerk" when account.TicketClerk != null => new AccountDto
+        {
+            AccountID = account.AccountID,
+            UserName = account.UserName,
+            Status = account.Status,
+            UserType = account.UserType,
+            Password = account.Password,
+            Name = account.TicketClerk.Name,
+            Gender = account.TicketClerk.Gender,
+            PhoneNumber = account.TicketClerk.PhoneNumber,
+            HireDate = account.TicketClerk.HireDate
+        },
+        "Customer" when account.Customer != null => new AccountDto
+        {
+            AccountID = account.AccountID,
+            UserName = account.UserName,
+            Status = account.Status,
+            Name = account.Customer.Name,
+            Gender = account.Customer.Gender,
+            UserType = account.UserType,
+            Password = account.Password,
+            PhoneNumber = account.Customer.PhoneNumber,
+            Address = account.Customer.Address
+        },
+        _ => null
+    };
 
-            // Chuyển danh sách Account sang AccountDto
-            var accountDtos = accounts.Select(account => account.UserType switch
-            {
-                "Driver" when account.Driver != null => new AccountDto
-                {
-                    AccountID = account.AccountID,
-                    UserName = account.UserName,
-                    Status = account.Status,
-                    UserType = account.UserType,
-                    Password = account.Password,
-                    Name = account.Driver.Name,
-                    Gender = account.Driver.Gender,
-                    PhoneNumber = account.Driver.PhoneNumber,
-                    LicenseNumber = account.Driver.LicenseNumber
-                },
-                "TicketClerk" when account.TicketClerk != null => new AccountDto
-                {
-                    AccountID = account.AccountID,
-                    UserName = account.UserName,
-                    Status = account.Status,
-                    UserType = account.UserType,
-                    Password = account.Password,
-                    Name = account.TicketClerk.Name,
-                    Gender = account.TicketClerk.Gender,
-                    PhoneNumber = account.TicketClerk.PhoneNumber,
-                    HireDate = account.TicketClerk.HireDate
-                },
-                "Customer" when account.Customer != null => new AccountDto
-                {
-                    AccountID = account.AccountID,
-                    UserName = account.UserName,
-                    Status = account.Status,
-                    Name = account.Customer.Name,
-                    Gender = account.Customer.Gender,
-                    UserType = account.UserType,
-                    Password = account.Password,
-                    PhoneNumber = account.Customer.PhoneNumber,
-                    Address = account.Customer.Address
-                },
-                _ => null
-            }).Where(dto => dto != null).ToList(); // Loại bỏ các DTO null
+    if (result == null)
+    {
+        return NotFound("Account details could not be found.");
+    }
 
-            // Trả về danh sách AccountDto
-            return Ok(accountDtos);
-        }
+    return Ok(result);
+}
+
 
 
 
@@ -166,12 +226,10 @@ namespace odaurehonbe.Controllers
                 return NotFound("Account not found");
             }
 
-            // Update common account fields
             account.UserName = accountDto.UserName;
             account.Status = accountDto.Status;
-            account.Password = accountDto.Password; // Ensure this is hashed in production
+            account.Password = accountDto.Password; 
 
-            // Update specific user type fields
             switch (accountDto.UserType)
             {
                 case "Customer":
@@ -223,90 +281,87 @@ namespace odaurehonbe.Controllers
             }
         }
 
-
         [HttpPost]
-        public async Task<ActionResult<Account>> PostAccount(AccountDto accountDto)
+        public async Task<IActionResult> CreateAccount([FromBody] AccountDto accountDto)
         {
-            // Validate the incoming accountDto to check if UserType and Password are provided
-            if (string.IsNullOrEmpty(accountDto.UserType))
+            try
             {
-                return BadRequest("UserType is required.");
-            }
-
-            if (string.IsNullOrEmpty(accountDto.Password))
-            {
-                return BadRequest("Password is required.");
-            }
-
-            // Validate if the 'Name' field is provided for the specific user type
-            if (string.IsNullOrEmpty(accountDto.Name) && accountDto.UserType != "TicketClerk")
-            {
-                return BadRequest("Name is required for the selected user type.");
-            }
-
-            // Create a new Account based on the provided DTO
-            var account = new Account
-            {
-                AccountID = accountDto.AccountID,
-                UserName = accountDto.UserName,
-                Status = accountDto.Status,
-                UserType = accountDto.UserType,
-                Password = accountDto.Password // Store the password as plain text
-            };
-
-            // If AccountID is provided from frontend, set it
-            if (accountDto.AccountID > 0)  // You can apply additional validation if necessary
-            {
-                account.AccountID = accountDto.AccountID;
-            }
-
-            // Add the corresponding user type (Customer, Driver, or TicketClerk) based on UserType
-            if (accountDto.UserType == "Driver")
-            {
-                var driver = new Driver
+                if (string.IsNullOrEmpty(accountDto.UserType))
                 {
-                    AccountID = accountDto.AccountID,
-                    Name = accountDto.Name,
-                    Gender = accountDto.Gender,
-                    PhoneNumber = accountDto.PhoneNumber,
-                    LicenseNumber = accountDto.LicenseNumber
-                };
-                account.Driver = driver;
-            }
-            else if (accountDto.UserType == "TicketClerk")
-            {
-                var ticketClerk = new TicketClerk
-                {
-                    AccountID = accountDto.AccountID,
-                    Name = accountDto.Name,
-                    Gender = accountDto.Gender,
-                    PhoneNumber = accountDto.PhoneNumber,
-                    HireDate = accountDto.HireDate.Value // Assuming HireDate is required for TicketClerk
-                };
-                account.TicketClerk = ticketClerk;
-            }
-            else if (accountDto.UserType == "Customer")
-            {
-                var customer = new Customer
-                {
-                    AccountID = accountDto.AccountID,
-                    Name = accountDto.Name,  // Ensure Name is being set correctly
-                    Gender = accountDto.Gender,
-                    PhoneNumber = accountDto.PhoneNumber,
-                    Address = accountDto.Address
-                };
-                account.Customer = customer;
-            }
-            else
-            {
-                return BadRequest("Invalid UserType.");
-            }
+                    return BadRequest("UserType is required.");
+                }
 
-            // Add the new Account (and related User) to the database
-            _context.Accounts.Add(account);
-            await _context.SaveChangesAsync();
+                if (string.IsNullOrEmpty(accountDto.Password))
+                {
+                    return BadRequest("Password is required.");
+                }
 
-            return CreatedAtAction("GetAccount", new { id = account.AccountID }, account);
+                if (string.IsNullOrEmpty(accountDto.Name) && accountDto.UserType != "TicketClerk")
+                {
+                    return BadRequest("Name is required for the selected user type.");
+                }
+
+                var account = new Account
+                {
+                    UserName = accountDto.UserName,
+                    Status = accountDto.Status,
+                    UserType = accountDto.UserType,
+                    Password = accountDto.Password
+                };
+
+                if (accountDto.AccountID > 0)
+                {
+                    account.AccountID = accountDto.AccountID;
+                }
+
+                if (accountDto.UserType == "Driver")
+                {
+                    var driver = new Driver
+                    {
+                        Name = accountDto.Name,
+                        Gender = accountDto.Gender,
+                        PhoneNumber = accountDto.PhoneNumber,
+                        LicenseNumber = accountDto.LicenseNumber
+                    };
+                    account.Driver = driver;
+                }
+                else if (accountDto.UserType == "TicketClerk")
+                {
+                    var ticketClerk = new TicketClerk
+                    {
+                        Name = accountDto.Name,
+                        Gender = accountDto.Gender,
+                        PhoneNumber = accountDto.PhoneNumber,
+                        HireDate = accountDto.HireDate.Value // Assuming HireDate is required for TicketClerk
+                    };
+                    account.TicketClerk = ticketClerk;
+                }
+                else if (accountDto.UserType == "Customer")
+                {
+                    var customer = new Customer
+                    {
+                        AccountID = accountDto.AccountID,
+                        Name = accountDto.Name,
+                        Gender = accountDto.Gender,
+                        PhoneNumber = accountDto.PhoneNumber,
+                        Address = accountDto.Address
+                    };
+                    account.Customer = customer;
+                }
+                else
+                {
+                    return BadRequest("Invalid UserType.");
+                }
+
+                _context.Accounts.Add(account);
+                await _context.SaveChangesAsync();
+
+                return CreatedAtAction(nameof(CreateAccount), new { id = account.AccountID }, accountDto);  // Trả về HTTP 201
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);  // Trả về lỗi nếu có
+            }
         }
 
 
@@ -324,7 +379,6 @@ namespace odaurehonbe.Controllers
                 return NotFound("Account not found");
             }
 
-            // Xóa các liên kết liên quan trước khi xóa account
             if (account.Customer != null)
             {
                 _context.Customers.Remove(account.Customer);

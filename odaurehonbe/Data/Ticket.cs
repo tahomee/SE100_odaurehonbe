@@ -6,7 +6,7 @@ namespace odaurehonbe.Data
     {
         [Key]
         public int TicketID { get; set; }
-        public int BusID { get; set; }
+        public int BusBusRouteID { get; set; }
         public int CustomerID { get; set; }
         public int SeatNum { get; set; }
         public DateTime BookingDate { get; set; }

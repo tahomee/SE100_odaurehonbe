@@ -27,6 +27,7 @@ namespace odaurehonbe.Controllers
                     .Include(bbr => bbr.Seats)   
                     .Select(bbr => new
                     {
+                        bbr.BusBusRouteID,
                         bbr.BusRouteID,
                         DepartPlace = bbr.BusRoute.DepartPlace,
                         ArrivalPlace = bbr.BusRoute.ArrivalPlace,
@@ -72,108 +73,27 @@ namespace odaurehonbe.Controllers
 
 
 
-        //[HttpGet("bus-routes/{busId}")]
-        //public async Task<IActionResult> GetBusRouteByBusId(int busId)
-        //{
-        //    var busRoute = await _context.BusBusRoutes
-        //        .Where(bbr => bbr.BusID == busId)
-        //        .Include(bbr => bbr.BusRoute)
-        //        .Include(bbr => bbr.Bus)
-        //        .ThenInclude(bus => bus.Seats)  
-        //        .Select(bbr => new
-        //        {
-        //            bbr.BusRoute.BusRouteID,
-        //            bbr.BusRoute.DepartPlace,
-        //            bbr.BusRoute.ArrivalPlace,
-        //            bbr.BusRoute.DepartureTime,
-        //            bbr.BusRoute.Duration,
-        //            bbr.BusRoute.PricePerSeat,
-
-        //            Bus = new
-        //            {
-        //                bbr.Bus.BusID,
-        //                bbr.Bus.NumSeat,
-        //                bbr.Bus.PlateNum,
-        //                bbr.Bus.Type,
-        //                bbr.Bus.SeatsAvailable,
-        //                Seats = bbr.Bus.Seats.Select(seat => new
-        //                {
-        //                    seat.SeatID,
-        //                    seat.SeatNumber,
-        //                    seat.IsBooked
-        //                }).ToList()  
-        //            }
-        //        })
-        //        .FirstOrDefaultAsync();
-
-        //    if (busRoute == null)
-        //    {
-        //        return NotFound($"Bus with ID {busId} not found.");
-        //    }
-
-        //    return Ok(busRoute);
-        //}
-        //[HttpPost("create-tickets")]
-        //public IActionResult CreateTickets([FromBody] TicketRequestModel request)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return BadRequest(ModelState);
-        //    }
-
-        //    try
-        //    {
-        //        var seatNumbers = request.SeatNum
-        //            .Split(',', StringSplitOptions.RemoveEmptyEntries)
-        //            .Select(int.Parse)  
-        //            .ToList();
-
-        //        var tickets = new List<Ticket>();
-
-        //        foreach (var seatNumber in seatNumbers)
-        //        {
-        //            var ticket = new Ticket
-        //            {
-        //                BusID = request.BusID,
-        //                CustomerID = request.CustomerID,
-        //                SeatNum = seatNumber,
-        //                Type = request.Type,
-        //                Price = request.Price,
-        //                BookingDate = DateTime.UtcNow,
-        //                Status = "Pending" 
-        //            };
-
-        //            tickets.Add(ticket);
-        //        }
-
-        //        _context.Tickets.AddRange(tickets);
-        //        _context.SaveChanges();
-
-        //        return Ok(new { message = "Tickets created successfully.", tickets });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, new { error = "An error occurred while creating tickets.", details = ex.Message });
-        //    }
-        //}
-        [HttpGet("bus-routes/{busId}")]
-        public async Task<IActionResult> GetBusRouteByBusId(int busId)
+        [HttpGet("bus-bus-routes/{busBusRouteId}")]
+        public async Task<IActionResult> GetBusRouteByBusBusRouteId(int busBusRouteId)
         {
             try
             {
                 var busRoute = await _context.BusBusRoutes
-                    .Where(bbr => bbr.BusID == busId)
-                    .Include(bbr => bbr.BusRoute)  
-                    .Include(bbr => bbr.Bus)  
-                    .Include(bbr => bbr.Seats)  
+                    .Where(bbr => bbr.BusBusRouteID == busBusRouteId) 
+                    .Include(bbr => bbr.BusRoute)
+                    .Include(bbr => bbr.Bus)
+                    .Include(bbr => bbr.Seats)
                     .Select(bbr => new
                     {
+                        bbr.BusBusRouteID,
                         bbr.BusRouteID,
                         DepartPlace = bbr.BusRoute.DepartPlace,
                         ArrivalPlace = bbr.BusRoute.ArrivalPlace,
                         DepartureTime = bbr.BusRoute.DepartureTime,
                         Duration = bbr.BusRoute.Duration,
-                        Price = bbr.Bus.Type == "VIP" ? bbr.BusRoute.PricePerSeatVip : bbr.BusRoute.PricePerSeat,
+                        Price = bbr.Bus.Type == "VIP"
+                            ? bbr.BusRoute.PricePerSeatVip
+                            : bbr.BusRoute.PricePerSeat,
                         Bus = new
                         {
                             bbr.BusID,
@@ -182,7 +102,7 @@ namespace odaurehonbe.Controllers
                             bbr.Bus.Type
                         },
                         SeatsAvailable = bbr.Seats != null
-                            ? bbr.Seats.Count(seat => !seat.IsBooked) 
+                            ? bbr.Seats.Count(seat => !seat.IsBooked)
                             : 0,
                         Seats = bbr.Seats != null
                             ? bbr.Seats.Select(seat => new
@@ -193,10 +113,11 @@ namespace odaurehonbe.Controllers
                             }).ToList()
                             : null
                     })
-                    .FirstOrDefaultAsync(); 
+                    .FirstOrDefaultAsync();
+
                 if (busRoute == null)
                 {
-                    return NotFound($"Bus with ID {busId} not found.");
+                    return NotFound($"Bus Bus Route with ID {busBusRouteId} not found.");
                 }
 
                 return Ok(busRoute);
@@ -233,7 +154,7 @@ namespace odaurehonbe.Controllers
                 {
                     var seat = _context.Seats
                         .Include(s => s.BusBusRoute)
-                        .FirstOrDefault(s => s.BusBusRoute.BusID == request.BusID && s.SeatID == seatNumber); // Convert seatNumber to string
+                        .FirstOrDefault(s => s.BusBusRoute.BusBusRouteID == request.BusBusRouteID && s.SeatID == seatNumber);
 
                     if (seat == null || seat.IsBooked)
                     {
@@ -242,7 +163,7 @@ namespace odaurehonbe.Controllers
 
                     var ticket = new Ticket
                     {
-                        BusID = request.BusID,
+                        BusBusRouteID = request.BusBusRouteID,
                         CustomerID = request.CustomerID,
                         SeatNum = seatNumber,
                         Type = request.Type,
@@ -267,8 +188,10 @@ namespace odaurehonbe.Controllers
             }
         }
 
+    
 
-    }
+
+}
 
 
 }

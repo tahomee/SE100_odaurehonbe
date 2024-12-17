@@ -19,6 +19,5 @@ namespace odaurehonbe.Data
         public ICollection<BusDriver> BusDrivers { get; set; }
 
         public ICollection<BusBusRoute> BusBusRoutes { get; set; }
-        public ICollection<Seat> Seats { get; set; }
     }
 }

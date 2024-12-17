@@ -5,7 +5,7 @@ namespace odaurehonbe.Models
     public class TicketRequestModel
     {
         [Required]
-        public int BusID { get; set; }
+        public int BusBusRouteID { get; set; }
 
         [Required]
         public int CustomerID { get; set; }
