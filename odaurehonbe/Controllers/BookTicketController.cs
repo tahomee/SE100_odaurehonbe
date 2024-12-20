@@ -23,8 +23,8 @@ namespace odaurehonbe.Controllers
             try
             {
                 var busBusRoutes = await _context.BusBusRoutes
-                    .Include(bbr => bbr.BusRoute) 
-                    .Include(bbr => bbr.Seats)   
+                    .Include(bbr => bbr.BusRoute)
+                    .Include(bbr => bbr.Seats)
                     .Select(bbr => new
                     {
                         bbr.BusBusRouteID,
@@ -53,7 +53,7 @@ namespace odaurehonbe.Controllers
                                 seat.SeatNumber,
                                 seat.IsBooked
                             }).ToList()
-                            : null 
+                            : null
                     })
                     .ToListAsync();
 
@@ -61,7 +61,7 @@ namespace odaurehonbe.Controllers
             }
             catch (Exception ex)
             {
-             
+
                 return StatusCode(StatusCodes.Status500InternalServerError, new
                 {
                     Message = "An error occurred while processing your request.",
@@ -79,7 +79,7 @@ namespace odaurehonbe.Controllers
             try
             {
                 var busRoute = await _context.BusBusRoutes
-                    .Where(bbr => bbr.BusBusRouteID == busBusRouteId) 
+                    .Where(bbr => bbr.BusBusRouteID == busBusRouteId)
                     .Include(bbr => bbr.BusRoute)
                     .Include(bbr => bbr.Bus)
                     .Include(bbr => bbr.Seats)
@@ -233,7 +233,7 @@ namespace odaurehonbe.Controllers
 
                         createdTickets.Add(ticket);
 
-                        seat.IsBooked = true; 
+                        seat.IsBooked = true;
                     }
                 }
 
@@ -259,13 +259,144 @@ namespace odaurehonbe.Controllers
                 });
             }
         }
+        [HttpGet("bus-bus-routes-with-ticket-price/{ticketId}")]
+        public async Task<IActionResult> GetBusBusRoutesByTicketPrice(int ticketId)
+        {
+            var now = DateTime.Now.ToUniversalTime();
+
+            try
+            {
+                var ticket = await _context.Tickets
+                    .FirstOrDefaultAsync(t => t.TicketID == ticketId);
+
+                if (ticket == null)
+                {
+                    return NotFound($"Ticket with ID {ticketId} not found.");
+                }
+
+                var ticketPrice = ticket.Price;
+
+                var busBusRoutes = await _context.BusBusRoutes
+                    .Where(bbr => bbr.Bus.Type == "Thường" && bbr.BusRoute.PricePerSeat == ticketPrice ||
+                                  (bbr.Bus.Type == "VIP" && bbr.BusRoute.PricePerSeatVip == ticketPrice))
+                    .Include(bbr => bbr.BusRoute)
+                                .Where(bbr => bbr.BusRoute.DepartureTime >= now)
+
+                    .Include(bbr => bbr.Bus)
+                    .Include(bbr => bbr.Seats)
+                    .Select(bbr => new
+                    {
+                        bbr.BusBusRouteID,
+                        bbr.BusRouteID,
+                        DepartPlace = bbr.BusRoute.DepartPlace,
+                        ArrivalPlace = bbr.BusRoute.ArrivalPlace,
+                        DepartureTime = bbr.BusRoute.DepartureTime,
+                        Duration = bbr.BusRoute.Duration,
+                        PricePerSeat = bbr.Bus.Type == "VIP"
+                            ? bbr.BusRoute.PricePerSeatVip
+                            : bbr.BusRoute.PricePerSeat,
+                        Bus = new
+                        {
+                            bbr.BusID,
+                            bbr.Bus.NumSeat,
+                            bbr.Bus.PlateNum,
+                            bbr.Bus.Type
+                        },
+                        SeatsAvailable = bbr.Seats != null
+                            ? bbr.Seats.Count(seat => !seat.IsBooked)
+                            : 0,
+                        Seats = bbr.Seats != null
+                            ? bbr.Seats.Select(seat => new
+                            {
+                                seat.SeatID,
+                                seat.SeatNumber,
+                                seat.IsBooked
+                            }).ToList()
+                            : null
+                    })
+                    .ToListAsync();
+
+                return Ok(busBusRoutes);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    Message = "An error occurred while processing your request.",
+                    Error = ex.Message
+                });
+            }
+
+
+        }
+
+
+        [HttpGet("bus-bus-route-change/{notifiactionId}")]
+        public async Task<IActionResult> GetBusBusRoutesChange(int notifiactionId)
+        {
+
+            try
+            {
+                var noti = await _context.Notifications
+                    .FirstOrDefaultAsync(t => t.NotificationID == notifiactionId);
+                if (noti == null)
+                    return NotFound(new { message = "Notification not found." });
+                var newBusBusRouteId = int.Parse(noti.Message.Split('#')[2].Split(' ')[0]);
+
+
+                var busBusRoutes = await _context.BusBusRoutes
+                    .Where(bbr => bbr.BusBusRouteID == newBusBusRouteId)
+                    .Include(bbr => bbr.BusRoute)
+                    .Include(bbr => bbr.Bus)
+                    .Include(bbr => bbr.Seats)
+                    .Select(bbr => new
+                    {
+                        bbr.BusBusRouteID,
+                        bbr.BusRouteID,
+                        DepartPlace = bbr.BusRoute.DepartPlace,
+                        ArrivalPlace = bbr.BusRoute.ArrivalPlace,
+                        DepartureTime = bbr.BusRoute.DepartureTime,
+                        Duration = bbr.BusRoute.Duration,
+                        PricePerSeat = bbr.Bus.Type == "VIP"
+                            ? bbr.BusRoute.PricePerSeatVip
+                            : bbr.BusRoute.PricePerSeat,
+                        Bus = new
+                        {
+                            bbr.BusID,
+                            bbr.Bus.NumSeat,
+                            bbr.Bus.PlateNum,
+                            bbr.Bus.Type
+                        },
+                        SeatsAvailable = bbr.Seats != null
+                            ? bbr.Seats.Count(seat => !seat.IsBooked)
+                            : 0,
+                        Seats = bbr.Seats != null
+                            ? bbr.Seats.Select(seat => new
+                            {
+                                seat.SeatID,
+                                seat.SeatNumber,
+                                seat.IsBooked
+                            }).ToList()
+                            : null
+                    })
+                    .ToListAsync();
+
+                return Ok(busBusRoutes);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    Message = "An error occurred while processing your request.",
+                    Error = ex.Message
+                });
+            }
 
 
 
+        }
 
 
     }
-
-
 }
 

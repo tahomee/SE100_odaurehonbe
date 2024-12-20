@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using odaurehonbe.Data;
@@ -11,9 +12,11 @@ using odaurehonbe.Data;
 namespace odaurehonbe.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241219151027_AddNotificationsTable")]
+    partial class AddNotificationsTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -118,39 +121,6 @@ namespace odaurehonbe.Migrations
                     b.HasKey("AccountID");
 
                     b.ToTable("Drivers");
-                });
-
-            modelBuilder.Entity("Notification", b =>
-                {
-                    b.Property<int>("NotificationID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("NotificationID"));
-
-                    b.Property<int?>("ClerkID")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("IsHandled")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("TicketID")
-                        .HasColumnType("integer");
-
-                    b.HasKey("NotificationID");
-
-                    b.HasIndex("ClerkID");
-
-                    b.HasIndex("TicketID");
-
-                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("TicketClerk", b =>
@@ -465,23 +435,6 @@ namespace odaurehonbe.Migrations
                         .IsRequired();
 
                     b.Navigation("Account");
-                });
-
-            modelBuilder.Entity("Notification", b =>
-                {
-                    b.HasOne("TicketClerk", "Clerk")
-                        .WithMany()
-                        .HasForeignKey("ClerkID");
-
-                    b.HasOne("odaurehonbe.Data.Ticket", "Ticket")
-                        .WithMany()
-                        .HasForeignKey("TicketID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Clerk");
-
-                    b.Navigation("Ticket");
                 });
 
             modelBuilder.Entity("TicketClerk", b =>
