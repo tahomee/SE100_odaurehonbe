@@ -121,40 +121,40 @@ namespace odaurehonbe.Controllers
                 return StatusCode(500, new { message = "Error sending change request.", error = ex.Message });
             }
         }
-        [HttpPost("process-change-ticket/{notificationId}/{clerkId}")]
-        public async Task<IActionResult> ProcessChangeTicket(int notificationId, int clerkId)
-        {
-            try
-            {
-                var notification = await _dbContext.Notifications.Include(n => n.Ticket).FirstOrDefaultAsync(n => n.NotificationID == notificationId);
-                if (notification == null)
-                    return NotFound(new { message = "Notification not found." });
+        //[HttpPost("process-change-ticket/{notificationId}/{clerkId}")]
+        //public async Task<IActionResult> ProcessChangeTicket(int notificationId, int clerkId)
+        //{
+        //    try
+        //    {
+        //        var notification = await _dbContext.Notifications.Include(n => n.Ticket).FirstOrDefaultAsync(n => n.NotificationID == notificationId);
+        //        if (notification == null)
+        //            return NotFound(new { message = "Notification not found." });
 
-                var ticket = notification.Ticket;
-                if (ticket == null)
-                    return NotFound(new { message = "Ticket not found." });
+        //        var ticket = notification.Ticket;
+        //        if (ticket == null)
+        //            return NotFound(new { message = "Ticket not found." });
 
-                var newBusBusRouteId = int.Parse(notification.Message.Split('#')[2].Split(' ')[0]);
-                var newBusBusRoute = await _dbContext.BusBusRoutes.FirstOrDefaultAsync(bbr => bbr.BusBusRouteID == newBusBusRouteId);
-                if (newBusBusRoute == null)
-                    return NotFound(new { message = "New BusBusRoute not found." });
+        //        var newBusBusRouteId = int.Parse(notification.Message.Split('#')[2].Split(' ')[0]);
+        //        var newBusBusRoute = await _dbContext.BusBusRoutes.FirstOrDefaultAsync(bbr => bbr.BusBusRouteID == newBusBusRouteId);
+        //        if (newBusBusRoute == null)
+        //            return NotFound(new { message = "New BusBusRoute not found." });
 
-                ticket.BusBusRouteID = newBusBusRouteId;
+        //        ticket.BusBusRouteID = newBusBusRouteId;
 
-                notification.ClerkID = clerkId; 
-                notification.IsHandled = true;
+        //        notification.ClerkID = clerkId; 
+        //        notification.IsHandled = true;
 
-                await _dbContext.SaveChangesAsync();
+        //        await _dbContext.SaveChangesAsync();
 
-                return Ok(new { message = "Ticket changed successfully." });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Error processing ticket change.", error = ex.Message });
-            }
-        }
+        //        return Ok(new { message = "Ticket changed successfully." });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, new { message = "Error processing ticket change.", error = ex.Message });
+        //    }
+        //}
         [HttpPut("update-ticket")]
-        public async Task<IActionResult> UpdateTicket([FromBody] UpdateTicketRequest request)
+        public async Task<IActionResult> ProcessTicketChange([FromBody] UpdateTicketRequest request)
         {
             if (!ModelState.IsValid)
             {
