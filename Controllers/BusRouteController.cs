@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using odaurehonbe.Data;
-using odaurehonbe.Models;
 
 namespace odaurehonbe.Controllers
 {
@@ -20,7 +19,7 @@ namespace odaurehonbe.Controllers
         public async Task<IActionResult> GetBusRoutes([FromQuery] string? searchQuery, [FromQuery] List<string>? timeFrames)
         {
             // Log timeFrames nhận từ frontend
-            Console.WriteLine($"Received timeFrames: {string.Join(", ", timeFrames)}");
+            Console.WriteLine($"Received timeFrames: {string.Join(", ", values: timeFrames)}");
 
             var busRoutes = await _dbContext.BusRoutes.ToListAsync();
 

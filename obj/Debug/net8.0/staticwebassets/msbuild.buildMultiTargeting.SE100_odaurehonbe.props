@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\SE100_odaurehonbe.props" />
+</Project>
