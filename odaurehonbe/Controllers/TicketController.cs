@@ -15,7 +15,7 @@ namespace odaurehonbe.Controllers
         }
 
         [HttpGet("booked-tickets/{accountId}")]
-        public async Task<IActionResult> GetBookingHistory(int accountId)
+        public async Task<IActionResult> LoadBookingHistoryScreen(int accountId)
         {
             try
             {

@@ -262,7 +262,7 @@ namespace odaurehonbe.Controllers
 
 
         [HttpPost("create-tickets")]
-        public IActionResult CreateTickets([FromBody] TicketRequestModel request)
+        public IActionResult SelectTripAndSeat([FromBody] TicketRequestModel request)
         {
             if (!ModelState.IsValid)
             {

@@ -18,7 +18,7 @@ namespace odaurehonbe.Controllers
             _context = context;
         }
         [HttpGet]
-        public async Task<IActionResult> GetNotifications()
+        public async Task<IActionResult> GenerateNotifications()
         {
             try
             {
