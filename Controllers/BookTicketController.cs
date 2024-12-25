@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using odaurehonbe.Data;
-using System.Threading.Tasks;
-using System.Linq;
 using odaurehonbe.Models;
 
 namespace odaurehonbe.Controllers
@@ -23,8 +21,8 @@ namespace odaurehonbe.Controllers
             try
             {
                 var busBusRoutes = await _context.BusBusRoutes
-                    .Include(bbr => bbr.BusRoute) 
-                    .Include(bbr => bbr.Seats)   
+                    .Include(bbr => bbr.BusRoute)
+                    .Include(bbr => bbr.Seats)
                     .Select(bbr => new
                     {
                         bbr.BusBusRouteID,
@@ -53,7 +51,7 @@ namespace odaurehonbe.Controllers
                                 seat.SeatNumber,
                                 seat.IsBooked
                             }).ToList()
-                            : null 
+                            : null
                     })
                     .ToListAsync();
 
@@ -61,7 +59,137 @@ namespace odaurehonbe.Controllers
             }
             catch (Exception ex)
             {
-             
+
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    Message = "An error occurred while processing your request.",
+                    Error = ex.Message
+                });
+            }
+        }
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchBusRoutes(
+             [FromQuery] string departPlace,
+            [FromQuery] string arrivalPlace,
+            [FromQuery] DateTime? departureDate,
+            [FromQuery] DateTime? returnDate,
+            [FromQuery] int? ticketCount)
+                {
+            try
+            {
+                var query = _context.BusBusRoutes
+                    .Include(bbr => bbr.BusRoute)
+                    .Include(bbr => bbr.Seats)
+                    .AsQueryable();
+
+                if (!string.IsNullOrEmpty(departPlace))
+                {
+                    query = query.Where(bbr => bbr.BusRoute.DepartPlace == departPlace);
+                }
+                if (!string.IsNullOrEmpty(arrivalPlace))
+                {
+                    query = query.Where(bbr => bbr.BusRoute.ArrivalPlace == arrivalPlace);
+                }
+                if (departureDate.HasValue)
+                {
+                    var departureDay = departureDate.Value.ToUniversalTime().Date;
+                    query = query.Where(bbr => bbr.BusRoute.DepartureTime.Date == departureDay);
+                }
+
+                if (returnDate.HasValue)
+                {
+                    var returnDay = returnDate.Value.ToUniversalTime().Date; 
+                    query = query.Where(bbr => bbr.BusRoute.DepartureTime.Date == returnDay);
+                }
+
+
+
+
+                if (ticketCount.HasValue)
+                {
+                    query = query.Where(bbr => bbr.Seats.Count(seat => !seat.IsBooked) >= ticketCount.Value);
+                }
+
+                var results = await query
+                    .Select(bbr => new
+                    {
+                        bbr.BusBusRouteID,
+                        bbr.BusRouteID,
+                        DepartPlace = bbr.BusRoute.DepartPlace,
+                        ArrivalPlace = bbr.BusRoute.ArrivalPlace,
+                        DepartureTime = bbr.BusRoute.DepartureTime,
+                        Duration = bbr.BusRoute.Duration,
+                        PricePerSeat = bbr.Bus.Type == "VIP"
+                            ? bbr.BusRoute.PricePerSeatVip
+                            : bbr.BusRoute.PricePerSeat,
+                        Bus = new
+                        {
+                            bbr.BusID,
+                            bbr.Bus.NumSeat,
+                            bbr.Bus.PlateNum,
+                            bbr.Bus.Type
+                        },
+                        SeatsAvailable = bbr.Seats != null
+                            ? bbr.Seats.Count(seat => !seat.IsBooked)
+                            : 0,
+                        Seats = bbr.Seats != null
+                            ? bbr.Seats.Select(seat => new
+                            {
+                                seat.SeatID,
+                                seat.SeatNumber,
+                                seat.IsBooked
+                            }).ToList()
+                            : null
+                    })
+                    .ToListAsync();
+
+                if (returnDate.HasValue)
+                {
+                    var returnResults = await _context.BusBusRoutes
+                        .Include(bbr => bbr.BusRoute)
+                        .Include(bbr => bbr.Seats)
+                        .Where(bbr => bbr.BusRoute.DepartPlace == arrivalPlace &&
+                                      bbr.BusRoute.ArrivalPlace == departPlace &&
+                                      bbr.BusRoute.DepartureTime.Date == returnDate.Value.Date)
+                        .Select(bbr => new
+                        {
+                            bbr.BusBusRouteID,
+                            bbr.BusRouteID,
+                            DepartPlace = bbr.BusRoute.DepartPlace,
+                            ArrivalPlace = bbr.BusRoute.ArrivalPlace,
+                            DepartureTime = bbr.BusRoute.DepartureTime,
+                            Duration = bbr.BusRoute.Duration,
+                            PricePerSeat = bbr.Bus.Type == "VIP"
+                                ? bbr.BusRoute.PricePerSeatVip
+                                : bbr.BusRoute.PricePerSeat,
+                            Bus = new
+                            {
+                                bbr.BusID,
+                                bbr.Bus.NumSeat,
+                                bbr.Bus.PlateNum,
+                                bbr.Bus.Type
+                            },
+                            SeatsAvailable = bbr.Seats != null
+                                ? bbr.Seats.Count(seat => !seat.IsBooked)
+                                : 0,
+                            Seats = bbr.Seats != null
+                                ? bbr.Seats.Select(seat => new
+                                {
+                                    seat.SeatID,
+                                    seat.SeatNumber,
+                                    seat.IsBooked
+                                }).ToList()
+                                : null
+                        })
+                        .ToListAsync();
+
+                    results.AddRange(returnResults);
+                }
+
+                return Ok(results);
+            }
+            catch (Exception ex)
+            {
                 return StatusCode(StatusCodes.Status500InternalServerError, new
                 {
                     Message = "An error occurred while processing your request.",
@@ -79,7 +207,7 @@ namespace odaurehonbe.Controllers
             try
             {
                 var busRoute = await _context.BusBusRoutes
-                    .Where(bbr => bbr.BusBusRouteID == busBusRouteId) 
+                    .Where(bbr => bbr.BusBusRouteID == busBusRouteId)
                     .Include(bbr => bbr.BusRoute)
                     .Include(bbr => bbr.Bus)
                     .Include(bbr => bbr.Seats)
@@ -233,7 +361,7 @@ namespace odaurehonbe.Controllers
 
                         createdTickets.Add(ticket);
 
-                        seat.IsBooked = true; 
+                        seat.IsBooked = true;
                     }
                 }
 
@@ -259,13 +387,228 @@ namespace odaurehonbe.Controllers
                 });
             }
         }
+        [HttpGet("bus-bus-routes-with-ticket-price/{ticketId}")]
+        public async Task<IActionResult> FindNewTripAvailability(int ticketId)
+        {
+            var now = DateTime.Now.ToUniversalTime();
+
+            try
+            {
+                var ticket = await _context.Tickets
+                    .FirstOrDefaultAsync(t => t.TicketID == ticketId);
+
+                if (ticket == null)
+                {
+                    return NotFound($"Ticket with ID {ticketId} not found.");
+                }
+
+                var ticketPrice = ticket.Price;
+
+                var busBusRoutes = await _context.BusBusRoutes
+                    .Where(bbr => bbr.Bus.Type == "Thường" && bbr.BusRoute.PricePerSeat == ticketPrice ||
+                                  (bbr.Bus.Type == "VIP" && bbr.BusRoute.PricePerSeatVip == ticketPrice))
+                    .Include(bbr => bbr.BusRoute)
+                                .Where(bbr => bbr.BusRoute.DepartureTime >= now)
+
+                    .Include(bbr => bbr.Bus)
+                    .Include(bbr => bbr.Seats)
+                    .Select(bbr => new
+                    {
+                        bbr.BusBusRouteID,
+                        bbr.BusRouteID,
+                        DepartPlace = bbr.BusRoute.DepartPlace,
+                        ArrivalPlace = bbr.BusRoute.ArrivalPlace,
+                        DepartureTime = bbr.BusRoute.DepartureTime,
+                        Duration = bbr.BusRoute.Duration,
+                        PricePerSeat = bbr.Bus.Type == "VIP"
+                            ? bbr.BusRoute.PricePerSeatVip
+                            : bbr.BusRoute.PricePerSeat,
+                        Bus = new
+                        {
+                            bbr.BusID,
+                            bbr.Bus.NumSeat,
+                            bbr.Bus.PlateNum,
+                            bbr.Bus.Type
+                        },
+                        SeatsAvailable = bbr.Seats != null
+                            ? bbr.Seats.Count(seat => !seat.IsBooked)
+                            : 0,
+                        Seats = bbr.Seats != null
+                            ? bbr.Seats.Select(seat => new
+                            {
+                                seat.SeatID,
+                                seat.SeatNumber,
+                                seat.IsBooked
+                            }).ToList()
+                            : null
+                    })
+                    .ToListAsync();
+
+                return Ok(busBusRoutes);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    Message = "An error occurred while processing your request.",
+                    Error = ex.Message
+                });
+            }
+
+
+        }
+        [HttpGet("search_for_change")]
+        public async Task<IActionResult> SearchBusRoutes(
+    [FromQuery] int ticketId,
+    [FromQuery] string departPlace,
+    [FromQuery] string arrivalPlace,
+    [FromQuery] DateTime? departureDate)
+        {
+            try
+            {
+                var ticket = await _context.Tickets.FirstOrDefaultAsync(t => t.TicketID == ticketId);
+                if (ticket == null)
+                {
+                    return NotFound($"Ticket with ID {ticketId} not found.");
+                }
+
+                var ticketPrice = ticket.Price;
+
+                var query = _context.BusBusRoutes
+                    .Include(bbr => bbr.BusRoute)
+                    .Include(bbr => bbr.Seats)
+                    .Where(bbr =>
+                        (bbr.Bus.Type == "VIP" && bbr.BusRoute.PricePerSeatVip == ticketPrice) ||
+                        (bbr.Bus.Type == "Thường" && bbr.BusRoute.PricePerSeat == ticketPrice))
+                    .AsQueryable();
+
+                if (!string.IsNullOrEmpty(departPlace))
+                {
+                    query = query.Where(bbr => bbr.BusRoute.DepartPlace == departPlace);
+                }
+                if (!string.IsNullOrEmpty(arrivalPlace))
+                {
+                    query = query.Where(bbr => bbr.BusRoute.ArrivalPlace == arrivalPlace);
+                }
+                if (departureDate.HasValue)
+                {
+                    var departureDay = departureDate.Value.ToUniversalTime().Date;
+                    query = query.Where(bbr => bbr.BusRoute.DepartureTime.Date == departureDay);
+                }
+
+                var results = await query
+                    .Select(bbr => new
+                    {
+                        bbr.BusBusRouteID,
+                        bbr.BusRouteID,
+                        DepartPlace = bbr.BusRoute.DepartPlace,
+                        ArrivalPlace = bbr.BusRoute.ArrivalPlace,
+                        DepartureTime = bbr.BusRoute.DepartureTime,
+                        Duration = bbr.BusRoute.Duration,
+                        PricePerSeat = bbr.Bus.Type == "VIP"
+                            ? bbr.BusRoute.PricePerSeatVip
+                            : bbr.BusRoute.PricePerSeat,
+                        Bus = new
+                        {
+                            bbr.BusID,
+                            bbr.Bus.NumSeat,
+                            bbr.Bus.PlateNum,
+                            bbr.Bus.Type
+                        },
+                        SeatsAvailable = bbr.Seats != null
+                            ? bbr.Seats.Count(seat => !seat.IsBooked)
+                            : 0,
+                        Seats = bbr.Seats != null
+                            ? bbr.Seats.Select(seat => new
+                            {
+                                seat.SeatID,
+                                seat.SeatNumber,
+                                seat.IsBooked
+                            }).ToList()
+                            : null
+                    })
+                    .ToListAsync();
+
+                return Ok(results);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    Message = "An error occurred while processing your request.",
+                    Error = ex.Message
+                });
+            }
+        }
 
 
 
+        [HttpGet("bus-bus-route-change/{notifiactionId}")]
+        public async Task<IActionResult> GetBusBusRoutesChange(int notifiactionId)
+        {
+
+            try
+            {
+                var noti = await _context.Notifications
+                    .FirstOrDefaultAsync(t => t.NotificationID == notifiactionId);
+                if (noti == null)
+                    return NotFound(new { message = "Notification not found." });
+                var newBusBusRouteId = int.Parse(noti.Message.Split('#')[2].Split(' ')[0]);
+
+
+                var busBusRoutes = await _context.BusBusRoutes
+                    .Where(bbr => bbr.BusBusRouteID == newBusBusRouteId)
+                    .Include(bbr => bbr.BusRoute)
+                    .Include(bbr => bbr.Bus)
+                    .Include(bbr => bbr.Seats)
+                    .Select(bbr => new
+                    {
+                        bbr.BusBusRouteID,
+                        bbr.BusRouteID,
+                        DepartPlace = bbr.BusRoute.DepartPlace,
+                        ArrivalPlace = bbr.BusRoute.ArrivalPlace,
+                        DepartureTime = bbr.BusRoute.DepartureTime,
+                        Duration = bbr.BusRoute.Duration,
+                        PricePerSeat = bbr.Bus.Type == "VIP"
+                            ? bbr.BusRoute.PricePerSeatVip
+                            : bbr.BusRoute.PricePerSeat,
+                        Bus = new
+                        {
+                            bbr.BusID,
+                            bbr.Bus.NumSeat,
+                            bbr.Bus.PlateNum,
+                            bbr.Bus.Type
+                        },
+                        SeatsAvailable = bbr.Seats != null
+                            ? bbr.Seats.Count(seat => !seat.IsBooked)
+                            : 0,
+                        Seats = bbr.Seats != null
+                            ? bbr.Seats.Select(seat => new
+                            {
+                                seat.SeatID,
+                                seat.SeatNumber,
+                                seat.IsBooked
+                            }).ToList()
+                            : null
+                    })
+                    .ToListAsync();
+
+                return Ok(busBusRoutes);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    Message = "An error occurred while processing your request.",
+                    Error = ex.Message
+                });
+            }
+
+
+
+        }
 
 
     }
-
-
 }
 

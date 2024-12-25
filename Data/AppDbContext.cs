@@ -67,6 +67,8 @@ namespace odaurehonbe.Data
         public DbSet<TicketClerk> TicketClerks { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Promotion> Promotions { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
+
         public DbSet<Param> Params { get; set; }
     }
 }

@@ -15,56 +15,15 @@ namespace odaurehonbe.Controllers
         {
             _dbContext = dbContext;
         }
-        private TimeSpan GetStartTime(string timeFrame)
-        {
-            switch (timeFrame)
-            {
-                case "0:00 - 6:00": return new TimeSpan(0, 0, 0);
-                case "6:00 - 12:00": return new TimeSpan(6, 0, 0);
-                case "12:00 - 18:00": return new TimeSpan(12, 0, 0);
-                case "18:00 - 0:00": return new TimeSpan(18, 0, 0);
-                default: return TimeSpan.Zero;
-            }
-        }
-
-        private TimeSpan GetEndTime(string timeFrame)
-        {
-            switch (timeFrame)
-            {
-                case "0:00 - 6:00": return new TimeSpan(6, 0, 0);
-                case "6:00 - 12:00": return new TimeSpan(12, 0, 0);
-                case "12:00 - 18:00": return new TimeSpan(18, 0, 0);
-                case "18:00 - 0:00": return new TimeSpan(24, 0, 0);
-                default: return TimeSpan.Zero;
-            }
-        }
         [HttpGet]
-        public async Task<IActionResult> GetBusRoutes([FromQuery] string? searchQuery, [FromQuery] string[]? timeFrames)
-        {
-            if (timeFrames != null && timeFrames.Length > 0)
-            {
-                Console.WriteLine("Received timeFrames: " + string.Join(", ", timeFrames)); // Log giá trị của timeFrames
-            }
-            else
-            {
-                Console.WriteLine("No timeFrames received."); 
-            }
 
+        public async Task<IActionResult> GetBusRoutes([FromQuery] int? searchQuery)
+        {
             var query = _dbContext.BusRoutes.AsQueryable();
 
-            if (!string.IsNullOrEmpty(searchQuery))
+            if (searchQuery!=null)
             {
-                query = query.Where(b => b.DepartPlace.Contains(searchQuery) || b.BusRouteID.Equals(searchQuery));
-            }
-
-            if (timeFrames != null && timeFrames.Length > 0)
-            {
-                query = query.Where(b =>
-                    timeFrames.Any(t =>
-                        b.DepartureTime.TimeOfDay >= GetStartTime(t) &&
-                        b.DepartureTime.TimeOfDay < GetEndTime(t)
-                    )
-                );
+                query = query.Where(b =>b.BusRouteID.Equals(searchQuery));
             }
 
             var results = await query.ToListAsync();
@@ -76,7 +35,6 @@ namespace odaurehonbe.Controllers
 
             return Ok(results);
         }
-
 
         [HttpPost]
         public async Task<IActionResult> CreateBusRoute([FromBody] BusRoute newRoute)
