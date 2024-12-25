@@ -117,3 +117,14 @@ E:\.net\odaurehonbe\odaurehonbe\bin\Debug\net8.0\odaurehonbe.dll
 E:\.net\odaurehonbe\odaurehonbe\bin\Debug\net8.0\odaurehonbe.pdb
 E:\.net\odaurehonbe\odaurehonbe\obj\Debug\net8.0\odaurehonbe.genruntimeconfig.cache
 E:\.net\odaurehonbe\odaurehonbe\obj\Debug\net8.0\ref\odaurehonbe.dll
+E:\.net\odaurehonbe\odaurehonbe\bin\Debug\net8.0\EPPlus.dll
+E:\.net\odaurehonbe\odaurehonbe\bin\Debug\net8.0\EPPlus.Interfaces.dll
+E:\.net\odaurehonbe\odaurehonbe\bin\Debug\net8.0\EPPlus.System.Drawing.dll
+E:\.net\odaurehonbe\odaurehonbe\bin\Debug\net8.0\Microsoft.Extensions.Configuration.FileExtensions.dll
+E:\.net\odaurehonbe\odaurehonbe\bin\Debug\net8.0\Microsoft.Extensions.Configuration.Json.dll
+E:\.net\odaurehonbe\odaurehonbe\bin\Debug\net8.0\Microsoft.IO.RecyclableMemoryStream.dll
+E:\.net\odaurehonbe\odaurehonbe\bin\Debug\net8.0\Microsoft.Win32.SystemEvents.dll
+E:\.net\odaurehonbe\odaurehonbe\bin\Debug\net8.0\System.Drawing.Common.dll
+E:\.net\odaurehonbe\odaurehonbe\bin\Debug\net8.0\System.Security.Cryptography.Pkcs.dll
+E:\.net\odaurehonbe\odaurehonbe\bin\Debug\net8.0\runtimes\win\lib\net8.0\Microsoft.Win32.SystemEvents.dll
+E:\.net\odaurehonbe\odaurehonbe\bin\Debug\net8.0\runtimes\win\lib\net8.0\System.Security.Cryptography.Pkcs.dll

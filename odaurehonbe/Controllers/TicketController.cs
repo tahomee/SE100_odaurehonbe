@@ -69,6 +69,77 @@ namespace odaurehonbe.Controllers
                 return StatusCode(500, new { message = "Error retrieving tickets.", error = ex.Message });
             }
         }
+        [HttpGet("check-ticket/{ticketCode}/{phoneNumber}")]
+        public async Task<IActionResult> CheckTicketByPhoneAndCode(int ticketCode, string phoneNumber)
+        {
+            try
+            {
+                var ticket = await _dbContext.Tickets
+                    .Where(t => t.TicketID == ticketCode)
+                    .FirstOrDefaultAsync();
+
+                if (ticket == null)
+                    return NotFound(new { message = "Ticket not found." });
+
+                var customer = await _dbContext.Customers
+                    .Where(c => c.AccountID == ticket.CustomerID && c.PhoneNumber == phoneNumber)
+                    .FirstOrDefaultAsync();
+
+                if (customer == null)
+                    return Unauthorized(new { message = "Phone number does not match the ticket holder." });
+
+                // Lấy thông tin vé
+                var ticketDetails = await _dbContext.Tickets
+                    .Where(t => t.TicketID == ticketCode)
+                    .Join(
+                        _dbContext.BusBusRoutes,
+                        ticket => ticket.BusBusRouteID,
+                        busBusRoute => busBusRoute.BusBusRouteID,
+                        (ticket, busBusRoute) => new { ticket, busBusRoute }
+                    )
+                    .Join(
+                        _dbContext.Buses,
+                        combined => combined.busBusRoute.BusID,
+                        bus => bus.BusID,
+                        (combined, bus) => new { combined.ticket, combined.busBusRoute, bus }
+                    )
+                    .Join(
+                        _dbContext.BusRoutes,
+                        combined => combined.busBusRoute.BusRouteID,
+                        busRoute => busRoute.BusRouteID,
+                        (combined, busRoute) => new { combined.ticket, combined.busBusRoute, combined.bus, busRoute }
+                    )
+                    .Join(
+                        _dbContext.Seats,
+                        combined => combined.ticket.SeatNum,
+                        seat => seat.SeatID,
+                        (combined, seat) => new
+                        {
+                            TicketId = combined.ticket.TicketID,
+                            SeatNumber = seat.SeatNumber,
+                            Departure = combined.busRoute.DepartPlace,
+                            Destination = combined.busRoute.ArrivalPlace,
+                            DepartureTime = combined.busRoute.DepartureTime,
+                            BusNumber = combined.busBusRoute.BusID,
+                            LicensePlate = combined.bus.PlateNum,
+                            Status = combined.ticket.Status,
+                            Price = combined.ticket.Price,
+                            IsDeparted = DateTime.Now > combined.busRoute.DepartureTime.ToLocalTime() ? "Đã khởi hành" : "Chưa khởi hành"
+                        }
+                    )
+                    .FirstOrDefaultAsync();
+
+                if (ticketDetails == null)
+                    return NotFound(new { message = "Ticket details not found." });
+
+                return Ok(ticketDetails);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error retrieving ticket details.", error = ex.Message });
+            }
+        }
+
         [HttpDelete("cancel-ticket/{ticketId}")]
         public async Task<IActionResult> CancelTicket(int ticketId)
         {

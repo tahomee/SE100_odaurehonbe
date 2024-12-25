@@ -22,15 +22,20 @@ namespace odaurehonbe.Controllers
         {
             var query = _context.Buses.AsQueryable();
 
+            if (!string.IsNullOrEmpty(filterType))
+            {
+                query = query.Where(bus => bus.Type.ToUpper() == filterType.ToUpper());
+            }
+
+
             if (!string.IsNullOrEmpty(searchQuery))
             {
                 if (int.TryParse(searchQuery, out int busID))
                 {
-                    query = query.Where(bus => bus.BusID == busID);
+                    query = query.Where(bus => bus.BusID == busID);  
                 }
 
             }
-
 
             var result = query.Include(bus => bus.BusBusRoutes)
                               .Include(bus => bus.BusDrivers)
@@ -38,6 +43,7 @@ namespace odaurehonbe.Controllers
 
             return Ok(result);
         }
+
 
 
         [HttpGet("{id}")]
