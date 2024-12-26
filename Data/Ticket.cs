@@ -10,9 +10,11 @@ namespace odaurehonbe.Data
         public int CustomerID { get; set; }
         public int SeatNum { get; set; }
         public DateTime BookingDate { get; set; }
-        public string Type { get; set; }
+        public string? Type { get; set; }
         public decimal Price { get; set; }
+
         public string Status { get; set; }
         public int? PaymentID {  get; set; }
+
     }
 }

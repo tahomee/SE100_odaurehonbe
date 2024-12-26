@@ -294,7 +294,6 @@ namespace odaurehonbe.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("PaymentMethod")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime>("PaymentTime")
@@ -303,7 +302,9 @@ namespace odaurehonbe.Migrations
                     b.Property<int>("PromoID")
                         .HasColumnType("integer");
 
+
                     b.Property<int>("PromotionPromoID")
+
                         .HasColumnType("integer");
 
                     b.Property<int>("StaffID")
@@ -405,11 +406,9 @@ namespace odaurehonbe.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("Status")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Type")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("TicketID");
@@ -582,10 +581,12 @@ namespace odaurehonbe.Migrations
                     b.Navigation("Tickets");
                 });
 
+
             modelBuilder.Entity("odaurehonbe.Data.Promotion", b =>
                 {
                     b.Navigation("Promions");
                 });
+
 #pragma warning restore 612, 618
         }
     }

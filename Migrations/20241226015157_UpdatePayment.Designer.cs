@@ -12,7 +12,7 @@ using odaurehonbe.Data;
 namespace odaurehonbe.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241226015537_UpdatePayment")]
+    [Migration("20241226015157_UpdatePayment")]
     partial class UpdatePayment
     {
         /// <inheritdoc />
@@ -297,7 +297,6 @@ namespace odaurehonbe.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("PaymentMethod")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime>("PaymentTime")
@@ -391,6 +390,9 @@ namespace odaurehonbe.Migrations
                     b.Property<int?>("PaymentID")
                         .HasColumnType("integer");
 
+                    b.Property<string>("PaymentId")
+                        .HasColumnType("text");
+
                     b.Property<decimal>("Price")
                         .HasColumnType("numeric");
 
@@ -398,11 +400,9 @@ namespace odaurehonbe.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("Status")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Type")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("TicketID");
