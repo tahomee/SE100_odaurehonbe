@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using odaurehonbe.Data;
@@ -11,9 +12,11 @@ using odaurehonbe.Data;
 namespace odaurehonbe.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241226015537_UpdatePayment")]
+    partial class UpdatePayment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -303,9 +306,6 @@ namespace odaurehonbe.Migrations
                     b.Property<int>("PromoID")
                         .HasColumnType("integer");
 
-                    b.Property<int>("PromotionPromoID")
-                        .HasColumnType("integer");
-
                     b.Property<int>("StaffID")
                         .HasColumnType("integer");
 
@@ -313,8 +313,6 @@ namespace odaurehonbe.Migrations
                         .HasColumnType("numeric");
 
                     b.HasKey("PaymentID");
-
-                    b.HasIndex("PromotionPromoID");
 
                     b.ToTable("Payments");
                 });
@@ -340,15 +338,10 @@ namespace odaurehonbe.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("PromotionPromoID")
-                        .HasColumnType("integer");
-
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("PromoID");
-
-                    b.HasIndex("PromotionPromoID");
 
                     b.ToTable("Promotions");
                 });
@@ -507,24 +500,6 @@ namespace odaurehonbe.Migrations
                     b.Navigation("Account");
                 });
 
-            modelBuilder.Entity("odaurehonbe.Data.Payment", b =>
-                {
-                    b.HasOne("odaurehonbe.Data.Promotion", "Promotion")
-                        .WithMany()
-                        .HasForeignKey("PromotionPromoID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Promotion");
-                });
-
-            modelBuilder.Entity("odaurehonbe.Data.Promotion", b =>
-                {
-                    b.HasOne("odaurehonbe.Data.Promotion", null)
-                        .WithMany("Promions")
-                        .HasForeignKey("PromotionPromoID");
-                });
-
             modelBuilder.Entity("odaurehonbe.Data.Seat", b =>
                 {
                     b.HasOne("BusBusRoute", "BusBusRoute")
@@ -580,11 +555,6 @@ namespace odaurehonbe.Migrations
             modelBuilder.Entity("odaurehonbe.Data.Payment", b =>
                 {
                     b.Navigation("Tickets");
-                });
-
-            modelBuilder.Entity("odaurehonbe.Data.Promotion", b =>
-                {
-                    b.Navigation("Promions");
                 });
 #pragma warning restore 612, 618
         }

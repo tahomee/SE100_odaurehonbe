@@ -13,5 +13,6 @@ namespace odaurehonbe.Data
         public string Type { get; set; }
         public decimal Price { get; set; }
         public string Status { get; set; }
+        public int? PaymentID {  get; set; }
     }
 }
