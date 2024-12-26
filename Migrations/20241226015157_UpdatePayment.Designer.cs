@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using odaurehonbe.Data;
@@ -11,9 +12,11 @@ using odaurehonbe.Data;
 namespace odaurehonbe.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241226015157_UpdatePayment")]
+    partial class UpdatePayment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -302,9 +305,6 @@ namespace odaurehonbe.Migrations
                     b.Property<int>("PromoID")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("PromotionId")
-                        .HasColumnType("integer");
-
                     b.Property<int>("StaffID")
                         .HasColumnType("integer");
 
@@ -389,6 +389,9 @@ namespace odaurehonbe.Migrations
 
                     b.Property<int?>("PaymentID")
                         .HasColumnType("integer");
+
+                    b.Property<string>("PaymentId")
+                        .HasColumnType("text");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("numeric");
