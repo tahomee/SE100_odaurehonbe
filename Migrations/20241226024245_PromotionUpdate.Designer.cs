@@ -12,8 +12,8 @@ using odaurehonbe.Data;
 namespace odaurehonbe.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241226015157_UpdatePayment")]
-    partial class UpdatePayment
+    [Migration("20241226024245_PromotionUpdate")]
+    partial class PromotionUpdate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -297,12 +297,16 @@ namespace odaurehonbe.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("PaymentMethod")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime>("PaymentTime")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("PromoID")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PromotionPromoID")
                         .HasColumnType("integer");
 
                     b.Property<int>("StaffID")
@@ -312,6 +316,8 @@ namespace odaurehonbe.Migrations
                         .HasColumnType("numeric");
 
                     b.HasKey("PaymentID");
+
+                    b.HasIndex("PromotionPromoID");
 
                     b.ToTable("Payments");
                 });
@@ -390,9 +396,6 @@ namespace odaurehonbe.Migrations
                     b.Property<int?>("PaymentID")
                         .HasColumnType("integer");
 
-                    b.Property<string>("PaymentId")
-                        .HasColumnType("text");
-
                     b.Property<decimal>("Price")
                         .HasColumnType("numeric");
 
@@ -400,6 +403,7 @@ namespace odaurehonbe.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("Status")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Type")
@@ -500,6 +504,17 @@ namespace odaurehonbe.Migrations
                     b.Navigation("Account");
                 });
 
+            modelBuilder.Entity("odaurehonbe.Data.Payment", b =>
+                {
+                    b.HasOne("odaurehonbe.Data.Promotion", "Promotion")
+                        .WithMany("Payments")
+                        .HasForeignKey("PromotionPromoID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Promotion");
+                });
+
             modelBuilder.Entity("odaurehonbe.Data.Seat", b =>
                 {
                     b.HasOne("BusBusRoute", "BusBusRoute")
@@ -555,6 +570,11 @@ namespace odaurehonbe.Migrations
             modelBuilder.Entity("odaurehonbe.Data.Payment", b =>
                 {
                     b.Navigation("Tickets");
+                });
+
+            modelBuilder.Entity("odaurehonbe.Data.Promotion", b =>
+                {
+                    b.Navigation("Payments");
                 });
 #pragma warning restore 612, 618
         }

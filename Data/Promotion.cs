@@ -11,6 +11,6 @@ namespace odaurehonbe.Data
         public decimal Discount { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-        public ICollection<Promotion>? Promions { get; set; }
+        public ICollection<Payment>? Payments { get; set; }
     }
 }

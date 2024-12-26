@@ -12,8 +12,8 @@ using odaurehonbe.Data;
 namespace odaurehonbe.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241226020408_PromotionUpdate")]
-    partial class PromotionUpdate
+    [Migration("20241226024037_PromotionUp")]
+    partial class PromotionUp
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -297,6 +297,7 @@ namespace odaurehonbe.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("PaymentMethod")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime>("PaymentTime")
@@ -305,7 +306,7 @@ namespace odaurehonbe.Migrations
                     b.Property<int>("PromoID")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("PromotionId")
+                    b.Property<int>("PromotionPromoID")
                         .HasColumnType("integer");
 
                     b.Property<int>("StaffID")
@@ -315,6 +316,8 @@ namespace odaurehonbe.Migrations
                         .HasColumnType("numeric");
 
                     b.HasKey("PaymentID");
+
+                    b.HasIndex("PromotionPromoID");
 
                     b.ToTable("Payments");
                 });
@@ -400,6 +403,7 @@ namespace odaurehonbe.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("Status")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Type")
@@ -500,6 +504,17 @@ namespace odaurehonbe.Migrations
                     b.Navigation("Account");
                 });
 
+            modelBuilder.Entity("odaurehonbe.Data.Payment", b =>
+                {
+                    b.HasOne("odaurehonbe.Data.Promotion", "Promotion")
+                        .WithMany("Payments")
+                        .HasForeignKey("PromotionPromoID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Promotion");
+                });
+
             modelBuilder.Entity("odaurehonbe.Data.Seat", b =>
                 {
                     b.HasOne("BusBusRoute", "BusBusRoute")
@@ -555,6 +570,11 @@ namespace odaurehonbe.Migrations
             modelBuilder.Entity("odaurehonbe.Data.Payment", b =>
                 {
                     b.Navigation("Tickets");
+                });
+
+            modelBuilder.Entity("odaurehonbe.Data.Promotion", b =>
+                {
+                    b.Navigation("Payments");
                 });
 #pragma warning restore 612, 618
         }

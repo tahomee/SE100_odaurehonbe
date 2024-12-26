@@ -129,10 +129,6 @@ E:\RE\odaurehonbe\odaurehonbe\bin\Debug\net8.0\appsettings.Development.json
 E:\RE\odaurehonbe\odaurehonbe\bin\Debug\net8.0\appsettings.json
 E:\RE\odaurehonbe\odaurehonbe\bin\Debug\net8.0\SE100_odaurehonbe.staticwebassets.runtime.json
 E:\RE\odaurehonbe\odaurehonbe\bin\Debug\net8.0\SE100_odaurehonbe.exe
-E:\RE\odaurehonbe\odaurehonbe\bin\Debug\net8.0\SE100_odaurehonbe.deps.json
-E:\RE\odaurehonbe\odaurehonbe\bin\Debug\net8.0\SE100_odaurehonbe.runtimeconfig.json
-E:\RE\odaurehonbe\odaurehonbe\bin\Debug\net8.0\SE100_odaurehonbe.dll
-E:\RE\odaurehonbe\odaurehonbe\bin\Debug\net8.0\SE100_odaurehonbe.pdb
 E:\RE\odaurehonbe\odaurehonbe\bin\Debug\net8.0\Humanizer.dll
 E:\RE\odaurehonbe\odaurehonbe\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 E:\RE\odaurehonbe\odaurehonbe\bin\Debug\net8.0\Microsoft.Bcl.AsyncInterfaces.dll
@@ -247,5 +243,3 @@ E:\RE\odaurehonbe\odaurehonbe\obj\Debug\net8.0\SE100_od.9ACA7AAE.Up2Date
 E:\RE\odaurehonbe\odaurehonbe\obj\Debug\net8.0\SE100_odaurehonbe.dll
 E:\RE\odaurehonbe\odaurehonbe\obj\Debug\net8.0\refint\SE100_odaurehonbe.dll
 E:\RE\odaurehonbe\odaurehonbe\obj\Debug\net8.0\SE100_odaurehonbe.pdb
-E:\RE\odaurehonbe\odaurehonbe\obj\Debug\net8.0\SE100_odaurehonbe.genruntimeconfig.cache
-E:\RE\odaurehonbe\odaurehonbe\obj\Debug\net8.0\ref\SE100_odaurehonbe.dll
