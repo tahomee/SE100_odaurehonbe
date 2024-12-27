@@ -9,7 +9,7 @@ namespace odaurehonbe.Data
         public int BusRouteID { get; set; }
 
         public string DepartPlace { get; set; }
-         public string ArrivalPlace { get; set; }
+        public string ArrivalPlace { get; set; }
         public string DepartStation { get; set; }
         public string ArrivalStation { get; set; }
 
@@ -23,4 +23,3 @@ namespace odaurehonbe.Data
     }
 
 }
-

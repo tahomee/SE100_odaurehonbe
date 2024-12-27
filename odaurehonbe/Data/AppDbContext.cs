@@ -46,11 +46,22 @@ namespace odaurehonbe.Data
                 .WithOne(tc => tc.Account)
                 .HasForeignKey<TicketClerk>(tc => tc.AccountID);
             modelBuilder.Entity<Seat>()
-                .HasOne(s => s.BusBusRoute)
-                .WithMany(b => b.Seats)
-                .HasForeignKey(s => s.BusBusRouteID);
+              .HasOne(s => s.BusBusRoute)
+              .WithMany(b => b.Seats)
+              .HasForeignKey(s => s.BusBusRouteID);
 
+            // Cấu hình cho Payment và Promotion
+            modelBuilder.Entity<Payment>()
+                .HasOne(p => p.Promo)
+                .WithOne(p => p.Payment)
+                .HasForeignKey<Payment>(p => p.PromoID)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_Payments_Promotions");
 
+            modelBuilder.Entity<Promotion>()
+                .HasOne(p => p.Payment)
+                .WithOne(p => p.Promo)
+                .HasForeignKey<Promotion>(p => p.PaymentID);
 
             base.OnModelCreating(modelBuilder);
         }

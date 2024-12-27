@@ -1,22 +1,25 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
-namespace odaurehonbe.Data
+namespace odaurehonbe.Data;
+
+public partial class Account
 {
-    public class Account
-    {
-        [Key]
-        public int AccountID { get; set; }
+    [Key]
+    public int AccountID { get; set; }
 
-        public string UserType { get; set; }
-        public string UserName { get; set; }
+    public string UserType { get; set; } = null!;
 
-        public string Password { get; set; }
+    public string UserName { get; set; } = null!;
 
-        public string Status { get; set; }
+    public string Password { get; set; } = null!;
 
-        // Navigation properties
-        public Customer Customer { get; set; }    
-        public Driver Driver { get; set; }        
-        public TicketClerk TicketClerk { get; set; }
-    }
+    public string Status { get; set; } = null!;
+
+    public virtual Customer? Customer { get; set; }
+
+    public virtual Driver? Driver { get; set; }
+
+    public virtual TicketClerk? TicketClerk { get; set; }
 }

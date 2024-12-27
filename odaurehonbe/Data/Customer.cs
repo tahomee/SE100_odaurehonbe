@@ -1,16 +1,21 @@
-﻿using odaurehonbe.Data;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;  // Đừng quên thêm thư viện JsonIgnore
 
-public class Customer
+namespace odaurehonbe.Data;
+
+public partial class Customer
 {
     [Key]
-    public int AccountID { get; set; }  // Liên kết với Account
-    public string Name { get; set; }
-    public string Gender { get; set; }
-    public string PhoneNumber { get; set; }
-    public string Address { get; set; }
+    public int AccountID { get; set; }
 
-    [JsonIgnore]  
-    public Account Account { get; set; }  // Liên kết ngược với Account
+    public string Name { get; set; } = null!;
+
+    public string Gender { get; set; } = null!;
+
+    public string PhoneNumber { get; set; } = null!;
+
+    public string Address { get; set; } = null!;
+
+    public virtual Account Account { get; set; } = null!;
 }

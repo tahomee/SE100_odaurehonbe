@@ -324,6 +324,9 @@ public async Task<IActionResult> GetAccountById(int id)
                         LicenseNumber = accountDto.LicenseNumber
                     };
                     account.Driver = driver;
+                    _context.Accounts.Add(account);
+                    _context.Drivers.Add(driver);
+            
                 }
                 else if (accountDto.UserType == "TicketClerk")
                 {
@@ -335,6 +338,9 @@ public async Task<IActionResult> GetAccountById(int id)
                         HireDate = accountDto.HireDate.Value // Assuming HireDate is required for TicketClerk
                     };
                     account.TicketClerk = ticketClerk;
+                    _context.Accounts.Add(account);
+
+                    _context.TicketClerks.Add(ticketClerk);
                 }
                 else if (accountDto.UserType == "Customer")
                 {
@@ -347,13 +353,16 @@ public async Task<IActionResult> GetAccountById(int id)
                         Address = accountDto.Address
                     };
                     account.Customer = customer;
+                    _context.Accounts.Add(account);
+                    _context.Customers.Add(customer);
+          
                 }
                 else
                 {
                     return BadRequest("Invalid UserType.");
                 }
 
-                _context.Accounts.Add(account);
+             
                 await _context.SaveChangesAsync();
 
                 return CreatedAtAction(nameof(CreateAccount), new { id = account.AccountID }, accountDto);  // Trả về HTTP 201
