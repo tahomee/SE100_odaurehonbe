@@ -16,7 +16,7 @@ namespace odaurehonbe.Controllers
         }
 
         [HttpGet("schedule/{accountId}")]
-        public async Task<IActionResult> GetDriverSchedule(int accountId)
+        public async Task<IActionResult> LoadDriverScheduleScreene(int accountId)
         {
             try
             {

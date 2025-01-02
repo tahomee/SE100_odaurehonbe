@@ -1,29 +1,25 @@
-﻿using odaurehonbe.Data;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
 
+namespace odaurehonbe.Data;
 
+public partial class Notification
+{
+    [Key]
+    public int NotificationID { get; set; }
 
-public class Notification
-    {
-        [Key]
-        public int NotificationID { get; set; }
+    public int TicketID { get; set; }
 
-        [Required]
-        public int TicketID { get; set; }
+    public int? ClerkID { get; set; }
 
-        public Ticket Ticket { get; set; }
+    public string Message { get; set; } = null!;
 
-       
-        public int? ClerkID { get; set; }
+    public DateTime CreatedAt { get; set; }
 
-        public TicketClerk? Clerk { get; set; }
+    public bool IsHandled { get; set; }
 
-        [Required]
-        public string Message { get; set; }
+    public virtual TicketClerk? Clerk { get; set; }
 
-        public DateTime CreatedAt { get; set; } = DateTime.Now.ToUniversalTime();
-
-        public bool IsHandled { get; set; } = false;
-    }
-
+    public virtual Ticket Ticket { get; set; } = null!;
+}

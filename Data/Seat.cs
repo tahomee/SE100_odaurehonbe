@@ -1,18 +1,19 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
-namespace odaurehonbe.Data
+namespace odaurehonbe.Data;
+
+public partial class Seat
 {
-    public class Seat
-    {
-        [Key]
-        public int SeatID { get; set; }
-        public string SeatNumber { get; set; }
-        public bool IsBooked { get; set; } 
+    [Key]
+    public int SeatID { get; set; }
 
-        public int BusBusRouteID { get; set; } 
-        [JsonIgnore]
-        public BusBusRoute BusBusRoute { get; set; } 
+    public string SeatNumber { get; set; } = null!;
 
-    }
+    public bool IsBooked { get; set; }
+
+    public int BusBusRouteID { get; set; }
+
+    public virtual BusBusRoute BusBusRoute { get; set; } = null!;
 }

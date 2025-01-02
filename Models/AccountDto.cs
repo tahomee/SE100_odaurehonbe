@@ -11,7 +11,7 @@
         public string? UserType { get; set; }
         public string? PhoneNumber { get; set; }
         public string? LicenseNumber { get; set; } // Chỉ có cho Driver
-        public string? Address { get; set; }       // Chỉ có cho Customer
+        public string? Address { get; set; }       
         public DateOnly? HireDate { get; set; }     // Chỉ có cho TicketClerk
     }
 

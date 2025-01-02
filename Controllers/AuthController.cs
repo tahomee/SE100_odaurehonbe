@@ -16,36 +16,59 @@ namespace odaurehonbe.Controllers
             _dbContext = dbContext;
         }
         [HttpPost("signup")]
-        public async Task<IActionResult> SignUp([FromBody] Customer customer)
+        public async Task<IActionResult> SignUp([FromBody] AccountDto accountDto)
         {
-            if (string.IsNullOrEmpty(customer.Name) ||
-                string.IsNullOrEmpty(customer.PhoneNumber) ||
-                string.IsNullOrEmpty(customer.Account?.Password) ||
-                string.IsNullOrEmpty(customer.Account?.UserName) ||
-                string.IsNullOrEmpty(customer.Account?.UserType))
+            if (string.IsNullOrEmpty(accountDto.Name) ||
+                string.IsNullOrEmpty(accountDto.PhoneNumber) ||
+                string.IsNullOrEmpty(accountDto?.Password) ||
+                string.IsNullOrEmpty(accountDto.UserName) ||
+                string.IsNullOrEmpty(accountDto.UserType))
             {
                 return BadRequest(new { message = "Please fill in all the required fields." });
             }
 
-            if (_dbContext.Accounts.Any(a => a.UserName == customer.Account.UserName))
+            if (_dbContext.Accounts.Any(a => a.UserName == accountDto.UserName))
             {
                 return BadRequest(new { message = "Username already exists." });
             }
-
+            if (_dbContext.Accounts.Any(a => a.AccountID == accountDto.AccountID))
+            {
+                return BadRequest(new { message = "CCCD already exists." });
+            }
             var account = new Account
             {
-                UserName = customer.Account.UserName,
-                Password = customer.Account.Password,
-                UserType = customer.Account.UserType,
-                Status = "Active" 
+                UserName = accountDto.UserName,
+                Status = accountDto.Status,
+                UserType = accountDto.UserType,
+                Password = accountDto.Password
             };
 
-            _dbContext.Accounts.Add(account);
-            await _dbContext.SaveChangesAsync();
+            if (accountDto.AccountID > 0)
+            {
+                account.AccountID = accountDto.AccountID;
+            }
 
-            customer.AccountID = account.AccountID; 
-            _dbContext.Customers.Add(customer);
+            if (accountDto.UserType == "Customer")
+            {
+                var customer = new Customer
+                {
+                    AccountID = accountDto.AccountID,
+                    Name = accountDto.Name,
+                    Gender = accountDto.Gender,
+                    PhoneNumber = accountDto.PhoneNumber,
+                    Address = accountDto.Address
+                };
+                account.Customer = customer;
 
+                _dbContext.Accounts.Add(account);
+                _dbContext.Customers.Add(customer);
+            }
+            else
+            {
+                return BadRequest("Invalid UserType.");
+            }
+
+    
             await _dbContext.SaveChangesAsync();
 
             return Ok(new { message = "Registration successful!" });
