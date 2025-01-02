@@ -297,7 +297,7 @@ namespace odaurehonbe.Controllers
                         Type = request.Type,
                         Price = request.Price,
                         BookingDate = DateTime.UtcNow,
-                        Status = "Đã thanh toán"
+                        Status = "Chờ thanh toán"
                     };
 
                     tickets.Add(ticket);

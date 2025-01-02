@@ -72,55 +72,55 @@ namespace odaurehonbe.Controllers
 
             return Ok(promoDetails);
         }
-        [HttpPost("create")]
-        public async Task<IActionResult> CreatePayment(Payment payment, int id)
-        {
-            if (payment == null || payment.Tickets == null || !payment.Tickets.Any())
-            {
-                return BadRequest("Invalid payment details.");
-            }
+        //[HttpPost("create")]
+        //public async Task<IActionResult> CreatePayment(Payment payment, int id)
+        //{
+        //    if (payment == null || payment.Tickets == null || !payment.Tickets.Any())
+        //    {
+        //        return BadRequest("Invalid payment details.");
+        //    }
 
-            try
-            {
-                var customer = await _context.Customers.FirstOrDefaultAsync(c => c.AccountID == id);
-                if (customer != null)
-                {
-                    payment.CustomerID = customer.AccountID;
-                }
-                else
-                {
-                    var staff = await _context.TicketClerks.FirstOrDefaultAsync(s => s.AccountID == id);
-                    if (staff != null)
-                    {
-                        payment.StaffID = staff.AccountID;
-                    }
-                    else
-                    {
-                        return NotFound("ID not associated with any Customer or Staff.");
-                    }
-                }
+        //    try
+        //    {
+        //        var customer = await _context.Customers.FirstOrDefaultAsync(c => c.AccountID == id);
+        //        if (customer != null)
+        //        {
+        //            payment.CustomerID = customer.AccountID;
+        //        }
+        //        else
+        //        {
+        //            var staff = await _context.TicketClerks.FirstOrDefaultAsync(s => s.AccountID == id);
+        //            if (staff != null)
+        //            {
+        //                payment.StaffID = staff.AccountID;
+        //            }
+        //            else
+        //            {
+        //                return NotFound("ID not associated with any Customer or Staff.");
+        //            }
+        //        }
 
-                payment.PaymentTime = DateTime.UtcNow;
-                _context.Payments.Add(payment);
+        //        payment.PaymentTime = DateTime.UtcNow;
+        //        _context.Payments.Add(payment);
 
-                foreach (var ticket in payment.Tickets)
-                {
-                    var ticketEntity = await _context.Tickets.FirstOrDefaultAsync(t => t.TicketID == ticket.TicketID);
-                    if (ticketEntity != null)
-                    {
-                        ticketEntity.Status = "Đã thanh toán";
-                    }
-                }
+        //        foreach (var ticket in payment.Tickets)
+        //        {
+        //            var ticketEntity = await _context.Tickets.FirstOrDefaultAsync(t => t.TicketID == ticket.TicketID);
+        //            if (ticketEntity != null)
+        //            {
+        //                ticketEntity.Status = "Đã thanh toán";
+        //            }
+        //        }
 
-                await _context.SaveChangesAsync();
+        //        await _context.SaveChangesAsync();
 
-                return Ok(new { message = "Payment created successfully.", paymentId = payment.PaymentID });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "An error occurred while creating the payment.", error = ex.Message });
-            }
-        }
+        //        return Ok(new { message = "Payment created successfully.", paymentId = payment.PaymentID });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, new { message = "An error occurred while creating the payment.", error = ex.Message });
+        //    }
+        //}
 
     }
 }
