@@ -50,12 +50,12 @@ namespace odaurehonbe.Controllers
                     )
                     .Join(
                         _dbContext.Seats,
-                        combined => combined.ticket.SeatNum, 
-                        seat => seat.SeatID, 
+                        combined => combined.ticket.SeatNum,
+                        seat => seat.SeatID,
                         (combined, seat) => new
                         {
                             TicketId = combined.ticket.TicketID,
-                            SeatNumber = seat.SeatNumber, 
+                            SeatNumber = seat.SeatNumber,
                             Departure = combined.busRoute.DepartPlace,
                             Destination = combined.busRoute.ArrivalPlace,
                             DepartureTime = combined.busRoute.DepartureTime,
@@ -98,45 +98,45 @@ namespace odaurehonbe.Controllers
                     return Unauthorized(new { message = "Phone number does not match the ticket holder." });
 
 
-               var ticketDetails = await _dbContext.Tickets
-                    .Where(t => t.TicketID == ticketCode)
-                    .Join(
-                        _dbContext.BusBusRoutes,
-                        ticket => ticket.BusBusRouteID,
-                        busBusRoute => busBusRoute.BusBusRouteID,
-                        (ticket, busBusRoute) => new { ticket, busBusRoute }
-                    )
-                    .Join(
-                        _dbContext.Buses,
-                        combined => combined.busBusRoute.BusID,
-                        bus => bus.BusID,
-                        (combined, bus) => new { combined.ticket, combined.busBusRoute, bus }
-                    )
-                    .Join(
-                        _dbContext.BusRoutes,
-                        combined => combined.busBusRoute.BusRouteID,
-                        busRoute => busRoute.BusRouteID,
-                        (combined, busRoute) => new { combined.ticket, combined.busBusRoute, combined.bus, busRoute }
-                    )
-                    .Join(
-                        _dbContext.Seats,
-                        combined => combined.ticket.SeatNum,
-                        seat => seat.SeatID,
-                        (combined, seat) => new
-                        {
-                            TicketId = combined.ticket.TicketID,
-                            SeatNumber = seat.SeatNumber,
-                            Departure = combined.busRoute.DepartPlace,
-                            Destination = combined.busRoute.ArrivalPlace,
-                            DepartureTime = combined.busRoute.DepartureTime,
-                            BusNumber = combined.busBusRoute.BusID,
-                            LicensePlate = combined.bus.PlateNum,
-                            Status = combined.ticket.Status,
-                            Price = combined.ticket.Price,
-                            IsDeparted = DateTime.Now > combined.busRoute.DepartureTime.ToLocalTime() ? "Đã khởi hành" : "Chưa khởi hành"
-                        }
-                    )
-                    .FirstOrDefaultAsync();
+                var ticketDetails = await _dbContext.Tickets
+                     .Where(t => t.TicketID == ticketCode)
+                     .Join(
+                         _dbContext.BusBusRoutes,
+                         ticket => ticket.BusBusRouteID,
+                         busBusRoute => busBusRoute.BusBusRouteID,
+                         (ticket, busBusRoute) => new { ticket, busBusRoute }
+                     )
+                     .Join(
+                         _dbContext.Buses,
+                         combined => combined.busBusRoute.BusID,
+                         bus => bus.BusID,
+                         (combined, bus) => new { combined.ticket, combined.busBusRoute, bus }
+                     )
+                     .Join(
+                         _dbContext.BusRoutes,
+                         combined => combined.busBusRoute.BusRouteID,
+                         busRoute => busRoute.BusRouteID,
+                         (combined, busRoute) => new { combined.ticket, combined.busBusRoute, combined.bus, busRoute }
+                     )
+                     .Join(
+                         _dbContext.Seats,
+                         combined => combined.ticket.SeatNum,
+                         seat => seat.SeatID,
+                         (combined, seat) => new
+                         {
+                             TicketId = combined.ticket.TicketID,
+                             SeatNumber = seat.SeatNumber,
+                             Departure = combined.busRoute.DepartPlace,
+                             Destination = combined.busRoute.ArrivalPlace,
+                             DepartureTime = combined.busRoute.DepartureTime,
+                             BusNumber = combined.busBusRoute.BusID,
+                             LicensePlate = combined.bus.PlateNum,
+                             Status = combined.ticket.Status,
+                             Price = combined.ticket.Price,
+                             IsDeparted = DateTime.Now > combined.busRoute.DepartureTime.ToLocalTime() ? "Đã khởi hành" : "Chưa khởi hành"
+                         }
+                     )
+                     .FirstOrDefaultAsync();
 
                 if (ticketDetails == null)
                     return NotFound(new { message = "Ticket details not found." });
@@ -154,7 +154,7 @@ namespace odaurehonbe.Controllers
         {
             try
             {
-      
+
                 var notification = await _dbContext.Notifications
                     .Where(n => n.NotificationID == notificationId)
                     .FirstOrDefaultAsync();
@@ -164,7 +164,7 @@ namespace odaurehonbe.Controllers
                     return NotFound(new { message = "Notification not found." });
                 }
 
-            
+
                 var ticket = await _dbContext.Tickets
                     .Where(t => t.TicketID == notification.TicketID)
                     .FirstOrDefaultAsync();
@@ -177,7 +177,7 @@ namespace odaurehonbe.Controllers
                 var seat = await _dbContext.Seats.FirstOrDefaultAsync(s => s.SeatID == ticket.SeatNum);
                 if (seat != null)
                 {
-                    seat.IsBooked = false;  
+                    seat.IsBooked = false;
                 }
 
 
@@ -234,7 +234,7 @@ namespace odaurehonbe.Controllers
                 {
                     TicketID = ticketId,
                     ClerkID = null,
-               
+
                     Message = $"Request to change ticket #{ticketId} to BusBusRoute #{newBusBusRouteId}",
                 };
 
@@ -453,5 +453,5 @@ namespace odaurehonbe.Controllers
     }
 }
 
-    
+
 
